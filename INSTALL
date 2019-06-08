@@ -1,0 +1,37 @@
+Prerequisites
+-------------
+
+* Ubuntu >= 19.04
+* cmake >= 3.13.4-1
+* gcc-c++ >= 8.3.0
+* boost >= 1.67.0.1
+* Qt5 >= 5.12.2
+
+Install
+-------
+
+Assuming that the source code is in the subdirectory rckam, the basic
+procedure is:
+
+  mkdir build
+  cd build
+  bash ../rckam/configure.sh
+  make
+  sudo make install
+
+This will install rckam under /usr/local. For alternative destination
+directories, use the --prefix on the "configure.sh" command line. Use
+"bash ../rckam/configure.sh --help" for more information.
+
+Variables controlling the build process:
+
+* GCC_BASE [/usr]
+* CXX [/usr/bin/g++]
+* BOOST_ROOT [/usr]
+* BOOST_INCLUDEDIR [/usr/include/boost169]
+* BOOST_LIBRARYDIR [/usr/lib/boost169]
+* CPPUNIT_ROOT [/usr]
+CPPUNIT_INCLUDEDIR [/usr/include]
+CPPUNIT_LIBRARYDIR [/usr/lib64 if exists, otherwise /usr/lib]
+CPPUNIT_LIBRARY [$(CPPUNIT_LIBRARYDIR)/libcppunit.so if exists, otherwise $(CPPUNIT_LIBRARYDIR)/libcppunit.a]
+
