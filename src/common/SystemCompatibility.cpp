@@ -27,9 +27,9 @@
 #include <boost/format.hpp>
 #include <boost/thread.hpp>
 
-#include "common/Debug.hh"
-#include "common/Exceptions.hh"
-#include "common/SystemCompatibility.hh"
+#include "common/Debug.hpp"
+#include "common/Exceptions.hpp"
+#include "common/SystemCompatibility.hpp"
 
 // TODO: add a proper configuration system as needed
 #define HAVE_SIGNAL_H
@@ -107,6 +107,9 @@ int getTerminalWindowSize(
         ws_col = ws.ws_col;
         return 0;
     }
+#else
+    // silence warnings
+    (void) ws_row; (void) ws_col;
 #endif //HAVE_SYS_IOCTL_H
 
     return -1;
@@ -114,6 +117,8 @@ int getTerminalWindowSize(
 
 int linuxFallocate(int fd, std::size_t offset, std::size_t len)
 {
+    // silence warnings
+    (void)fd; (void) offset; (void) len;
 #ifdef HAVE_FALLOCATE
     // FALLOC_FL_KEEP_SIZE is not available on CentOS 5
 #ifdef FALLOC_FL_KEEP_SIZE
@@ -131,6 +136,9 @@ int linuxFtruncate(int fd, std::size_t len)
 // risk creating files with unfilled garbage at the end
 #ifdef HAVE_FALLOCATE
     return ftruncate(fd, len);
+#else
+    // silence warnings
+    (void)fd; (void) len;
 #endif //FALLOC_FL_KEEP_SIZE
 
     return 0;
@@ -337,7 +345,8 @@ int deleteFile(const PathCharType* filename)
 
 void truncateFile(const char* filePath, uint64_t dataSize)
 {
-	truncate(filePath, dataSize);
+    const auto ret = truncate(filePath, dataSize);
+    (void) ret; // silence warning on truncate return value
 }
 
 unsigned int getMaxOpenFiles()

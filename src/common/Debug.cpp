@@ -19,8 +19,8 @@
  **
  **/
 
-#include "common/Debug.hh"
-#include "common/SystemCompatibility.hh"
+#include "common/Debug.hpp"
+#include "common/SystemCompatibility.hpp"
 
 namespace rckam
 {

@@ -31,7 +31,7 @@
 #include <boost/io/ios_state.hpp>
 #include <boost/thread.hpp>
 
-#include "common/SystemCompatibility.hh"
+#include "common/SystemCompatibility.hpp"
 
 namespace rckam
 {
@@ -234,7 +234,7 @@ class CerrLocker
 
 public:
 
-    CerrLocker(const CerrLocker &that) : lock_(cerrMutex_), ias_(std::cerr){
+    CerrLocker(const CerrLocker &) : lock_(cerrMutex_), ias_(std::cerr){
     }
     CerrLocker() : lock_(cerrMutex_), ias_(std::cerr) {
     }

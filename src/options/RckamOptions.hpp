@@ -26,7 +26,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/regex.hpp>
 
-#include "common/Program.hh"
+#include "common/Program.hpp"
 
 namespace rckam
 {

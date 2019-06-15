@@ -23,7 +23,7 @@
 #include <cerrno>
 #include <boost/date_time.hpp>
 
-#include "common/Exceptions.hh"
+#include "common/Exceptions.hpp"
 
 namespace rckam
 {

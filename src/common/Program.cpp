@@ -21,7 +21,7 @@
 
 #include <boost/foreach.hpp>
 
-#include "common/Program.hh"
+#include "common/Program.hpp"
 
 namespace rckam
 {

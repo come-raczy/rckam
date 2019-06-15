@@ -19,16 +19,35 @@
  **
  **/
 
-#include "common/Debug.hh"
-#include "options/RckamOptions.hh"
+#include <QApplication>
+#include <QWidget>
 
-void align(const rckam::options::RckamOptions &options);
+#include "common/Debug.hpp"
+#include "common/Exceptions.hpp"
+#include "options/RckamOptions.hpp"
+
+void rckamGui(const rckam::options::RckamOptions &options);
 
 int main(int argc, char *argv[])
 {
-    rckam::common::run(align, argc, argv);
+    rckam::common::run(rckamGui, argc, argv);
 }
 
-void align(const rckam::options::RckamOptions &options)
+void rckamGui(const rckam::options::RckamOptions &options)
 {
+    int argc = 0;
+    char *argv[] = {"dummy"};
+    QApplication app(argc, argv);
+
+    QWidget window;
+
+    window.resize(250, 150);
+    window.setWindowTitle("Simple example");
+    window.show();
+
+    const auto ret = app.exec();
+    if (0!= ret)
+    {
+        BOOST_THROW_EXCEPTION(rckam::common::RckamException(ret, "QApplication"));
+    }
 }

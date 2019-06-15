@@ -30,8 +30,8 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/format.hpp>
 
-#include "common/Debug.hh"
-#include "common/Exceptions.hh"
+#include "common/Debug.hpp"
+#include "common/Exceptions.hpp"
 #include "config.h"
 
 namespace rckam

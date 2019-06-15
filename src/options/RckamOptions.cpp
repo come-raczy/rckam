@@ -35,8 +35,8 @@
 #include <boost/algorithm/string/regex.hpp>
 #include <boost/algorithm/string.hpp>
 
-#include "common/Exceptions.hh"
-#include "options/RckamOptions.hh"
+#include "common/Exceptions.hpp"
+#include "options/RckamOptions.hpp"
 #include "config.h"
 
 namespace rckam
