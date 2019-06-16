@@ -3,16 +3,12 @@ configure_file ("${CMAKE_CURRENT_SOURCE_DIR}/common/config.h.in" "${rckam_CXX_CO
 include_directories (${rckam_CXX_CONFIG_H_DIR})
 include_directories (${CMAKE_CURRENT_SOURCE_DIR})
 
-#find_package(Qt5Widgets CONFIG REQUIRED)
-find_package(Qt5 COMPONENTS Core Widgets REQUIRED)
-message("QT_INCLUDES: ${QT_INCLUDES}")
-include_directories(${QT_INCLUDES})
-
 add_definitions(-Wall -pedantic -Wextra)
 
 set (rckam_ALL_LIBRARIES
     common
     options
+    gui
     )
 
 if    (rckam_FORCE_STATIC_LINK)
@@ -35,6 +31,10 @@ rckam_find_library(ZLIB zlib.h z)
 rckam_find_library(PTHREAD pthread.h pthread)
 rckam_find_library(GPHOTO2 gphoto2/gphoto2.h gphoto2)
 #find_package( GPHOTO2 REQUIRED )
+
+set(CMAKE_AUTOMOC ON)
+#find_package(Qt5Widgets CONFIG REQUIRED)
+find_package(Qt5 COMPONENTS Core Widgets CONFIG REQUIRED)
 
 
 

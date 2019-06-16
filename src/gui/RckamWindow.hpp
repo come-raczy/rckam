@@ -17,31 +17,29 @@
  ** along with this program.  If not, see <https://www.gnu.org/licenses/>.
  **/
 
-#include <QApplication>
-#include <QWidget>
+#ifndef GUI_RCKAM_WINDOW_HPP
+#define GUI_RCKAM_WINDOW_HPP
 
-#include "common/Debug.hpp"
-#include "common/Exceptions.hpp"
+#include <QMainWindow>
+
 #include "options/RckamOptions.hpp"
-#include "gui/RckamWindow.hpp"
 
-void rckamGui(const rckam::options::RckamOptions &options);
-
-int main(int argc, char *argv[])
+namespace rckam
 {
-    rckam::common::run(rckamGui, argc, argv);
-}
-
-void rckamGui(const rckam::options::RckamOptions &options)
+namespace gui
 {
-    int argc = 0;
-    char *argv[] = {"dummy"};
-    QApplication app(argc, argv);
-    rckam::gui::RckamWindow rckamWindow(options);
-    rckamWindow.show();
-    const auto ret = app.exec();
-    if (0!= ret)
-    {
-        BOOST_THROW_EXCEPTION(rckam::common::RckamException(ret, "QApplication"));
-    }
-}
+class RckamWindow: public QMainWindow 
+{
+    Q_OBJECT  
+public:
+
+  public:
+    RckamWindow(const options::RckamOptions &options, QWidget *parent = 0);
+    virtual ~RckamWindow() {}
+};
+
+} // namespace gui
+} // namespace rckam
+
+#endif // #ifndef GUI_RCKAM_WINDOW_HPP
+

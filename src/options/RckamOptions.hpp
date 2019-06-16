@@ -19,8 +19,8 @@
  **
  **/
 
-#ifndef OPTIONS_RCKAM_OPTIONS_HH
-#define OPTIONS_RCKAM_OPTIONS_HH
+#ifndef OPTIONS_RCKAM_OPTIONS_HPP
+#define OPTIONS_RCKAM_OPTIONS_HPP
 
 #include <string>
 #include <boost/filesystem.hpp>
@@ -51,4 +51,4 @@ public:
 } // namespace options
 } // namespace rckam
 
-#endif // #ifndef OPTIONS_RCKAM_OPTIONS_HH
+#endif // #ifndef OPTIONS_RCKAM_OPTIONS_HPP

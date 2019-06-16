@@ -1,5 +1,4 @@
 /**
- **
  ** rckam: a Qt remote control for digital cameras
  **
  ** Copyright (C) <year>  <name of author>
@@ -16,11 +15,10 @@
  **
  ** You should have received a copy of the GNU Affero General Public License
  ** along with this program.  If not, see <https://www.gnu.org/licenses/>.
- **
  **/
 
-#ifndef COMMON_SYSTEM_COMPATIBILITY_HH
-#define COMMON_SYSTEM_COMPATIBILITY_HH
+#ifndef COMMON_SYSTEM_COMPATIBILITY_HPP
+#define COMMON_SYSTEM_COMPATIBILITY_HPP
 
 #include <boost/filesystem.hpp>
 
@@ -160,4 +158,4 @@ int linuxFtruncate(int fd, std::size_t len);
 } // namespace common
 } // namespace rckam
 
-#endif // #ifndef COMMON_SYSTEM_COMPATIBILITY_HH
+#endif // #ifndef COMMON_SYSTEM_COMPATIBILITY_HPP

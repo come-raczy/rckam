@@ -1,5 +1,4 @@
 /**
- **
  ** rckam: a Qt remote control for digital cameras
  **
  ** Copyright (C) <year>  <name of author>
@@ -16,11 +15,10 @@
  **
  ** You should have received a copy of the GNU Affero General Public License
  ** along with this program.  If not, see <https://www.gnu.org/licenses/>.
- **
  **/
 
-#ifndef COMMON_DEBUG_HH
-#define COMMON_DEBUG_HH
+#ifndef COMMON_DEBUG_HPP
+#define COMMON_DEBUG_HPP
 
 #include <atomic>
 #include <memory>
@@ -309,4 +307,4 @@ typedef rckam::common::detail::IndentT<1> RckamDebugTraceIndent;
 
 
 
-#endif // #ifndef COMMON_DEBUG_HH
+#endif // #ifndef COMMON_DEBUG_HPP
