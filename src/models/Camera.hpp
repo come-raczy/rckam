@@ -17,29 +17,31 @@
  ** along with this program.  If not, see <https://www.gnu.org/licenses/>.
  **/
 
-#ifndef GUI_RCKAM_WINDOW_HPP
-#define GUI_RCKAM_WINDOW_HPP
+#ifndef MODELS_CAMERA_HPP
+#define MODELS_CAMERA_HPP
 
-#include <QMainWindow>
-
-#include "options/RckamOptions.hpp"
+//#include <QGuiApplication>
+//#include <QQmlApplicationEngine>
+//#include <QQmlEngine>
+//#include <QQmlContext>
+//#include <QQmlComponent>
+//#include <QIcon>
+//#include <QDebug>
+#include <QObject>
 
 namespace rckam
 {
-namespace gui
+namespace models
 {
-class RckamWindow: public QMainWindow 
-{
-    Q_OBJECT  
-public:
 
-  public:
-    RckamWindow(const options::RckamOptions &options, QWidget *parent = 0);
-    virtual ~RckamWindow() {}
+class Camera : public QObject
+{
+    Q_OBJECT
+public slots:
+    void click();
 };
 
-} // namespace gui
+} // namespace models
 } // namespace rckam
 
-#endif // #ifndef GUI_RCKAM_WINDOW_HPP
-
+#endif // #ifndef MODELS_CAMERA_HPP

@@ -1,3 +1,9 @@
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
+set(CMAKE_AUTOUIC ON)
+
+#Create the global config.h
 set(rckam_CXX_CONFIG_H_DIR ${CMAKE_CURRENT_BINARY_DIR}/include/common)
 configure_file ("${CMAKE_CURRENT_SOURCE_DIR}/common/config.h.in" "${rckam_CXX_CONFIG_H_DIR}/config.h")
 include_directories (${rckam_CXX_CONFIG_H_DIR})
@@ -8,7 +14,8 @@ add_definitions(-Wall -pedantic -Wextra)
 set (rckam_ALL_LIBRARIES
     common
     options
-    gui
+    devices
+    models
     )
 
 if    (rckam_FORCE_STATIC_LINK)
@@ -32,11 +39,23 @@ rckam_find_library(PTHREAD pthread.h pthread)
 rckam_find_library(GPHOTO2 gphoto2/gphoto2.h gphoto2)
 #find_package( GPHOTO2 REQUIRED )
 
-set(CMAKE_AUTOMOC ON)
 #find_package(Qt5Widgets CONFIG REQUIRED)
-find_package(Qt5 COMPONENTS Core Widgets CONFIG REQUIRED)
+#find_package(Qt5 COMPONENTS Core Widgets Qml Quick CONFIG REQUIRED)
+find_package(Qt5 REQUIRED Core Widgets Qml Quick Gui Xml Svg)
+find_package(Qt5QuickCompiler)
+#find_package(Qt5Svg REQUIRED)
+#find_package(Qt5Gui REQUIRED)
+#find_package(Qt5Xml REQUIRED)
+#find_package(Qt5Core REQUIRED)
+
+#qt5_add_resources(QT_RESOURCES qml.qrc)
+#qt5_add_resources(qml_QRC qml.qrc)
+qtquick_compiler_add_resources(qml_QRC qml/qml.qrc)
 
 
+#include_directories(${Qt5Widgets_INCLUDE_DIRS} ${QtQml_INCLUDE_DIRS})
+#add_definitions(${Qt5Widgets_DEFINITIONS} ${QtQml_DEFINITIONS} ${${Qt5Quick_DEFINITIONS}})
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
 
 set (rckam_AVAILABLE_LIBRARIES "")
 set (rckam_ALL_LIBRARY_DIRS "")
@@ -55,8 +74,7 @@ file(GLOB rckam_EXECUTABLE_SOURCES *.cpp)
 
 foreach (SOURCE_FILE ${rckam_EXECUTABLE_SOURCES})
     get_filename_component (EXECUTABLE_NAME ${SOURCE_FILE} NAME_WE)
-    add_executable(${EXECUTABLE_NAME} ${SOURCE_FILE})
-    target_link_libraries (${EXECUTABLE_NAME} ${rckam_AVAILABLE_LIBRARIES} Qt5::Gui Qt5::Widgets ${Boost_LIBRARIES} ${PTHREAD_LIBRARY})
-    #target_link_libraries (${EXECUTABLE_NAME} ${rckam_AVAILABLE_LIBRARIES} Qt5Widgets ${Boost_LIBRARIES} ${PTHREAD_LIBRARY})
-
+    add_executable(${EXECUTABLE_NAME} ${SOURCE} ${SOURCE_FILE} ${qml_QRC})
+#    target_link_libraries (${EXECUTABLE_NAME} ${rckam_AVAILABLE_LIBRARIES} Qt5::Gui Qt5::Widgets Qt5::Qml Qt5::Quick ${Boost_LIBRARIES} ${PTHREAD_LIBRARY})
+    target_link_libraries (${EXECUTABLE_NAME} ${rckam_AVAILABLE_LIBRARIES} Qt5::Qml Qt5::Quick ${Boost_LIBRARIES} ${PTHREAD_LIBRARY} ${GPHOTO2_LIBRARY})
 endforeach (SOURCE_FILE)

@@ -1,0 +1,13 @@
+<RCC>
+    <qresource prefix="/">
+        <file>rckam.qml</file>
+        <file>GlobalSettings.qml</file>
+        <file>CameraSettings.qml</file>
+        <file>LiveView.qml</file>
+        <file>icons/settings.svg</file>
+        <file>icons/camera.svg</file>
+        <file>icons/camera-off.svg</file>
+        <file>icons/eye.svg</file>
+        <file>icons/eye-off.svg</file>
+    </qresource>
+</RCC>

@@ -17,13 +17,20 @@
  ** along with this program.  If not, see <https://www.gnu.org/licenses/>.
  **/
 
-#include <QApplication>
-#include <QWidget>
+#include <iostream>
+
+#include <QGuiApplication>
+#include <QQmlApplicationEngine>
+#include <QQmlEngine>
+#include <QQmlContext>
+#include <QQmlComponent>
+#include <QIcon>
+#include <QDebug>
 
 #include "common/Debug.hpp"
 #include "common/Exceptions.hpp"
 #include "options/RckamOptions.hpp"
-#include "gui/RckamWindow.hpp"
+#include "models/Camera.hpp"
 
 void rckamGui(const rckam::options::RckamOptions &options);
 
@@ -36,12 +43,22 @@ void rckamGui(const rckam::options::RckamOptions &options)
 {
     int argc = 0;
     char *argv[] = {"dummy"};
-    QApplication app(argc, argv);
-    rckam::gui::RckamWindow rckamWindow(options);
-    rckamWindow.show();
+    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+
+    QGuiApplication app(argc, argv);
+    QQmlApplicationEngine engine;
+    QQmlContext *objectContext = new QQmlContext(engine.rootContext());
+
+    rckam::models::Camera camera;
+    engine.rootContext()->setContextProperty("camera", &camera);
+    std::cerr << "Loading rckam.qml" << std::endl;
+    engine.load(QUrl(QStringLiteral("qrc:/rckam.qml")));
+    if (engine.rootObjects().isEmpty())
+        BOOST_THROW_EXCEPTION(rckam::common::RckamException(-1, "engine.rootObjects().isEmpty()"));
     const auto ret = app.exec();
     if (0!= ret)
     {
         BOOST_THROW_EXCEPTION(rckam::common::RckamException(ret, "QApplication"));
     }
 }
+
