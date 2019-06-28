@@ -32,30 +32,24 @@ else  (rckam_FORCE_STATIC_LINK)
     set(rckam_LIBRARY_SUFFIX "")
 endif (rckam_FORCE_STATIC_LINK)
 
-#rckam_find_boost(${rckam_BOOST_VERSION_MIN} "${rckam_BOOST_COMPONENTS}")
 find_package(Boost 1.67 REQUIRED COMPONENTS ${rckam_BOOST_COMPONENTS})
 rckam_find_library(ZLIB zlib.h z)
 rckam_find_library(PTHREAD pthread.h pthread)
 rckam_find_library(GPHOTO2 gphoto2/gphoto2.h gphoto2)
-#find_package( GPHOTO2 REQUIRED )
+rckam_find_library(UDEV libudev.h udev)
 
-#find_package(Qt5Widgets CONFIG REQUIRED)
-#find_package(Qt5 COMPONENTS Core Widgets Qml Quick CONFIG REQUIRED)
+# libusb1 needs a bit more help
+#rckam_find_library(LIBUSB_1 libusb.h usb-1.0)
+find_path(LIBUSB_1_INCLUDE_DIR NAMES libusb.h PATH_SUFFIXES libusb-1.0)
+find_library(LIBUSB_1_LIBRARY NAMES usb-1.0 usb)
+message(STATUS "LIBUSB_1_INCLUDE_DIR: ${LIBUSB_1_INCLUDE_DIR}")
+message(STATUS "LIBUSB_1_LIBRARY: ${LIBUSB_1_LIBRARY}")
+
+
 find_package(Qt5 REQUIRED Core Widgets Qml Quick Gui Xml Svg)
 find_package(Qt5QuickCompiler)
-#find_package(Qt5Svg REQUIRED)
-#find_package(Qt5Gui REQUIRED)
-#find_package(Qt5Xml REQUIRED)
-#find_package(Qt5Core REQUIRED)
 
-#qt5_add_resources(QT_RESOURCES qml.qrc)
-#qt5_add_resources(qml_QRC qml.qrc)
 qtquick_compiler_add_resources(qml_QRC qml/qml.qrc)
-
-
-#include_directories(${Qt5Widgets_INCLUDE_DIRS} ${QtQml_INCLUDE_DIRS})
-#add_definitions(${Qt5Widgets_DEFINITIONS} ${QtQml_DEFINITIONS} ${${Qt5Quick_DEFINITIONS}})
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
 
 set (rckam_AVAILABLE_LIBRARIES "")
 set (rckam_ALL_LIBRARY_DIRS "")
@@ -68,13 +62,12 @@ foreach (rckam_LIB_DIR ${rckam_ALL_LIBRARIES})
     set (PREVIOUS_TARGET rckam_${rckam_LIB_DIR})
 endforeach (rckam_LIB_DIR)
 
-#set (rckam_AVAILABLE_LIBRARIES ${rckam_AVAILABLE_LIBRARIES} PARENT_SCOPE)
+include_directories(${LIBUSB_1_INCLUDE_DIR})
 
 file(GLOB rckam_EXECUTABLE_SOURCES *.cpp)
 
 foreach (SOURCE_FILE ${rckam_EXECUTABLE_SOURCES})
     get_filename_component (EXECUTABLE_NAME ${SOURCE_FILE} NAME_WE)
     add_executable(${EXECUTABLE_NAME} ${SOURCE} ${SOURCE_FILE} ${qml_QRC})
-#    target_link_libraries (${EXECUTABLE_NAME} ${rckam_AVAILABLE_LIBRARIES} Qt5::Gui Qt5::Widgets Qt5::Qml Qt5::Quick ${Boost_LIBRARIES} ${PTHREAD_LIBRARY})
-    target_link_libraries (${EXECUTABLE_NAME} ${rckam_AVAILABLE_LIBRARIES} Qt5::Qml Qt5::Quick ${Boost_LIBRARIES} ${PTHREAD_LIBRARY} ${GPHOTO2_LIBRARY})
+    target_link_libraries (${EXECUTABLE_NAME} ${rckam_AVAILABLE_LIBRARIES} Qt5::Qml Qt5::Quick ${Boost_LIBRARIES} ${PTHREAD_LIBRARY} ${GPHOTO2_LIBRARY} ${LIBUSB_1_LIBRARY} ${UDEV_LIBRARY})
 endforeach (SOURCE_FILE)

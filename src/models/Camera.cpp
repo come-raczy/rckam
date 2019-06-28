@@ -39,5 +39,5 @@ void Camera::click() {std::cerr << "Camera.click()" << std::endl;}
 } // namespace models
 } // namespace rckam
 
-#include "Camera.moc"
+//#include "Camera.moc"
 
