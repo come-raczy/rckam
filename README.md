@@ -1,4 +1,4 @@
-# Open-source Camera Remote Control
+# A Qt remote control for digital cameras
 
 This project uses libgphoto2, usbip and openwrt to control remotely any
 camera supported by libgphoto2 over any WiFi Access Point (AP) that can
@@ -48,7 +48,7 @@ When building on the target system, simply type:
 make client
 ```
 
-This will generate the binary opencamrc in the subdirectory bin.
+This will generate the binary rckam in the subdirectory bin.
 
 When building for a different target, the correct compiler flags must be
 specified in the environment or on the make command line.
