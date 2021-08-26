@@ -26,12 +26,10 @@ else
 programs_aux:=$(wordlist 2, $(words $(programs_aux)), $(programs_aux))
 endif
 
-$(BUILD)/$(program).o: $(RCKAM_SRC_DIR)/$(program).cpp $(BUILD)/$(program).d $(BUILD)/.sentinel
-	$(CXX) $(DEPFLAGS) $(CPPFLAGS) $(CXXFLAGS) -c -o $@ $<
-	$(POSTCOMPILE)
-
-$(BUILD)/$(program): $(BUILD)/$(program).o $(libraries)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $@ $< $(libraries) $(LDFLAGS)
+# Objects are all created with the same rule in libs.mk
+# Only linking is required
+$(BUILD)/$(program): $(BUILD)/$(program).o $(all_lib_objects)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $@ $< $(all_lib_objects) $(LDFLAGS)
 
 include $(wildcard $(BUILD)/$(program).d)
 

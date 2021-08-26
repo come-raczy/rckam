@@ -28,7 +28,7 @@ clean:
 
 .PHONY: help
 clean:
-help: $(RCKAM_ROOT_DIR)/auto/README.md
+help: $(RCKAM_ROOT_DIR)/tracker/README.md
 	cat $<
 
 ############################################################

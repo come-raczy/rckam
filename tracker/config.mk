@@ -91,7 +91,8 @@ MV?=mv
 ##
 ############################################################
 
-RCKAM_ROOT_DIR?=$(realpath $(dir $(filter %Makefile, $(MAKEFILE_LIST))))
+## Root defaults to the parwent directory of the makefile
+RCKAM_ROOT_DIR?=$(realpath $(dir $(dir $(filter %Makefile, $(MAKEFILE_LIST)))))
 ifeq (,$(RCKAM_ROOT_DIR))
 $(error Failed to infer RCKAM_ROOT_DIR from MAKEFILE_LIST: $(MAKEFILE_LIST))
 endif
@@ -120,7 +121,7 @@ BUILD:=$(RCKAM_BUILD_DIR)
 VERSION_STRING?=$(shell git describe --tags --always --abbrev=8 2> /dev/null || echo "UNKNOWN")
 
 CPPFLAGS?=-Wall -ggdb3
-CPPFLAGS += -D'RCKAM_VERSION="$(RCKAM_VERSION)"' 
+CPPFLAGS += -DRCKAM_VERSION="$(RCKAM_VERSION)" 
 CPPFLAGS += -DVERSION_STRING="$(VERSION_STRING)"
 CPPFLAGS += -I $(RCKAM_SRC_DIR)
 CXXFLAGS?=-std=c++17
@@ -152,14 +153,14 @@ else # non DEBUG
 #CPPFLAGS += -O3 -march=native # Not particularly great
 #CPPFLAGS += -O3 -march=skylake-avx512 # same as above
 
-# this seems to be fastest for fastq parsing. mainly because it manages to put proper PSUBB instruction for subtracing q0 from qscore chars
-CPPFLAGS += -Wfatal-errors -g -msse4.2 -O2 -ftree-vectorize -finline-functions -fpredictive-commoning -fgcse-after-reload -funswitch-loops -ftree-slp-vectorize -fvect-cost-model -fipa-cp-clone -ftree-phiprop
+CPPFLAGS += -Wfatal-errors -g -O2 -ftree-vectorize -finline-functions -fpredictive-commoning -fgcse-after-reload -funswitch-loops -ftree-slp-vectorize -fvect-cost-model -fipa-cp-clone -ftree-phiprop
 
 # this seems slightly slower than above
 #CXXFLAGS += -g -mavx2 -O2 -ftree-vectorize -finline-functions -fpredictive-commoning -fgcse-after-reload -funswitch-loops -ftree-slp-vectorize -fvect-cost-model -fipa-cp-clone -ftree-phiprop
 endif # if DEBUG
 
 LDFLAGS+= -lz -lstdc++ -lrt -lgomp -lpthread
+LDFLAGS+= -lpigpio
 
 ifneq (,$(GTEST_INCLUDEDIR))
 GTEST_CPPFLAGS+= -I $(GTEST_INCLUDEDIR)
@@ -191,6 +192,7 @@ endif
 
 sources := $(wildcard $(RCKAM_SRC_DIR)/*.cpp)
 #programs := $(sources:$(RCKAM_SRC_DIR)/%.cpp=%)
-programs := rckam-auto
-all_lib_sources := $(filter-out $(programs), $(sources))
+programs := rckam-tracker
+all_lib_sources := $(filter-out $(programs:%=$(RCKAM_SRC_DIR)/%.cpp), $(sources))
+all_lib_objects := $(all_lib_sources:$(RCKAM_SRC_DIR)/%.cpp=$(BUILD)/%.o)
 

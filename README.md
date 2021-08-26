@@ -11,7 +11,7 @@ real-time previews are not critical.
 
 Detailed README and INSTALL are available in the `gui` subdirectory.
 
-## Automation (auto subdirectory)
+## Tracker (tracker subdirectory)
 
 A headless solution to automatically detect and track objects of
 interest.
