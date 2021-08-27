@@ -18,3 +18,5 @@ $(BUILD)/%.o: $(RCKAM_SRC_DIR)/%.cpp $(BUILD)/%.d $(BUILD)/.sentinel
 	$(CXX) $(DEPFLAGS) $(CPPFLAGS) $(CXXFLAGS) -c -o $@ $<
 	$(POSTCOMPILE)
 
+include $(foreach lib, $(all_lib_objects), $(lib:%.o=%.d))
+

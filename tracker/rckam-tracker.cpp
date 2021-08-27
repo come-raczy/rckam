@@ -13,7 +13,7 @@
  **/
 
 #include <iostream>
-#include <pigpiod_if2.h>
+#include <pigpio.h>
 
 #include "RckamTrackerOptions.hpp"
 #include "Controller.hpp"

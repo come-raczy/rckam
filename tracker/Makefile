@@ -51,15 +51,10 @@ POSTCOMPILE ?= mv -f $(@:%.o=%.Td) $(@:%.o=%.d)
 %/.sentinel:
 	@mkdir -p $* && touch $@
 
-include $(wildcard $(BUILD)/testRunner.d)
-
 include $(RCKAM_MAKE_DIR)/libs.mk
 
 programs_aux:=$(programs)
 include $(foreach program, $(programs), $(RCKAM_MAKE_DIR)/program.mk)
-
-# programs for system tests
-include $(RCKAM_MAKE_DIR)/tests.mk
 
 include $(RCKAM_MAKE_DIR)/install.mk
 endif
