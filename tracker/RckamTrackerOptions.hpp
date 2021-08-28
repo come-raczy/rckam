@@ -51,6 +51,9 @@ public:
   bool exists(const std::string& opt) const { return vm_.count(opt); }
   static std::string version() { return std::string(std::string("rckam-tracker version ") + STRINGIFY(RCKAM_VERSION) + "-" + STRINGIFY(VERSION_STRING)); }
   
+  unsigned switchChannel = 0;
+  unsigned vrxChannel = 1;
+  unsigned vryChannel = 3;
 protected:
   bool                                version_ = false;
   bpo::options_description            namedOptions_;

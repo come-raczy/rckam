@@ -49,6 +49,7 @@ public:
   ~Mcp3008();
   /// \brief read a single 10-bits value for the given channel (ch0...ch7)
   unsigned read(unsigned channel);
+  constexpr unsigned getMaxValue() const {return (1U << BITS);}
 private:
   /// \brief handle to the spi device associated to the chip select
   int spi_;
