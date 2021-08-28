@@ -51,9 +51,28 @@ public:
   bool exists(const std::string& opt) const { return vm_.count(opt); }
   static std::string version() { return std::string(std::string("rckam-tracker version ") + STRINGIFY(RCKAM_VERSION) + "-" + STRINGIFY(VERSION_STRING)); }
   
+  /// ADC channel for the joystick switch
   unsigned switchChannel = 0;
+  /// ADC channel for X control
   unsigned vrxChannel = 1;
+  /// ADC channel for Y control
   unsigned vryChannel = 3;
+  /// GPIO pin to TB6612FNG AIN1
+  unsigned ain1 = 29;
+  /// GPIO pin to TB6612FNG AIN2
+  unsigned ain2 = 31;
+  /// GPIO pin to TB6612FNG PWMA
+  unsigned pwma = 33; // PWM0
+  /// GPIO pin to TB6612FNG BIN1
+  unsigned bin1 = 8;
+  /// GPIO pin to TB6612FNG BIN2
+  unsigned bin2 = 10;
+  /// GPIO pin to TB6612FNG PWMB
+  unsigned pwmb = 12; // PWM1
+  /// GPIO pin to TB6612FNG STBY
+  unsigned stby = 16;
+  /// PWM frequency for HW PWM control of the motors
+  unsigned pwmFreq = 100000;
 protected:
   bool                                version_ = false;
   bpo::options_description            namedOptions_;
