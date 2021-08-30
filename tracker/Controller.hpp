@@ -16,6 +16,7 @@
 #define RCKAM_TRACKER_CONTROLLER_HPP
 
 #include "RckamTrackerOptions.hpp"
+#include "PanTiltMotors.hpp"
 #include "Joystick.hpp"
 
 namespace rckam
@@ -23,12 +24,22 @@ namespace rckam
 namespace tracker
 {
 
+/**
+ ** \brief a controller for a motorized pan/tilt gimbal
+ **
+ ** The controlled is connected to the following devices:
+ ** - 1 TB6612FNG for PWM control of the two motors
+ ** - 2 incremental quadratic controlers - one for each motor
+ ** - 1 joystick with switch, connected to a 10-bits ADC (MPC3008)
+ **/
 class Controller
 {
 public:
   Controller(const RckamTrackerOptions &options);
   void run();
 private:
+  /// dual H-bridge for the two motors
+  //const Tb6612fng tb6612fng_;
   const Joystick joystick_;
 };
 

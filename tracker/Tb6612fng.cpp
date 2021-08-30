@@ -27,12 +27,12 @@ namespace rckam
 namespace tracker
 {
 
-Tb6612fng::Tb6612fng(const RckamTrackerOptions &options)
-: in1_{options.ain1, options.bin1}
-, in2_{options.ain2, options.bin2}
-, pwm_{options.pwma, options.pwmb}
-, stby_(options.stby)
-, freq_(options.pwmFreq)
+Tb6612fng::Tb6612fng(const unsigned ain1, const unsigned ain2, const unsigned bin1, const unsigned bin2, const unsigned pwma, const unsigned pwmb, const unsigned stby, const unsigned pwmFreq)
+: in1_{ain1, bin1}
+, in2_{ain2, bin2}
+, pwm_{pwma, pwmb}
+, stby_(stby)
+, freq_(pwmFreq)
 {
   // TODO: initialize the GPIOs to output
   for (const auto in: {in1_, in2_, pwm_})

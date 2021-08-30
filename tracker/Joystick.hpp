@@ -29,6 +29,7 @@ namespace tracker
  ** \brief Suppoprt for a joystick connected to an MCP008
  **
  ** The values can be read on demand.
+ ** Note: a 10K resistor is required to connect the SW pin to +3.3V.
  ** TODO: implement callback mechanisms for click, double-click and long-press.
  **/
 class Joystick : boost::noncopyable

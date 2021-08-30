@@ -31,12 +31,6 @@ Mcp3008::Mcp3008(const unsigned chipSelect, const unsigned baud, const unsigned 
     const auto message = boost::format("ERROR: failed to open SPI device: CS=%i, baud=%i, flags=%i: $i") % chipSelect % baud % flags % spi_;
     BOOST_THROW_EXCEPTION(GpioException(message.str()));
   }
-  // Need to set GPIO as outputs otherwise wave will have no effect.
-  //gpioSetMode(rawSPI.clk,  PI_OUTPUT);
-  //gpioSetMode(rawSPI.mosi, PI_OUTPUT);
-  //gpioSetMode(SPI_SS,      PI_OUTPUT);
-  // Flush any old unused wave data.
-  //gpioWaveAddNew();
 }
 
 Mcp3008::~Mcp3008()
