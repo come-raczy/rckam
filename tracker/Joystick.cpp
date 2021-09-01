@@ -22,11 +22,11 @@ namespace rckam
 namespace tracker
 {
 
-Joystick::Joystick(const RckamTrackerOptions &options)
+Joystick::Joystick(const unsigned switchChannel, const unsigned vrxChannel, const unsigned vryChannel)
 : mcp3008_(0, 100000, 0)
-, switch_(options.switchChannel)
-, vrx_(options.vrxChannel)
-, vry_(options.vryChannel)
+, switch_(switchChannel)
+, vrx_(vrxChannel)
+, vry_(vryChannel)
 {
   std::cerr << mcp3008_.read(0) << " " << mcp3008_.read(1) << " " << mcp3008_.read(2) <<  " " << mcp3008_.read(3) << " " << mcp3008_.read(4) <<  " " << mcp3008_.read(5) << " " << mcp3008_.read(6)  << " " << mcp3008_.read(7) << " " << isPressed() << " " << xValue() << " " << yValue() << std::endl;
   std::cerr << mcp3008_.read(0) << " " << mcp3008_.read(1) << " " << mcp3008_.read(2) <<  " " << mcp3008_.read(3) << " " << mcp3008_.read(4) <<  " " << mcp3008_.read(5) << " " << mcp3008_.read(6)  << " " << mcp3008_.read(7) << " " << isPressed() << " " << xValue() << " " << yValue() << std::endl;
@@ -45,6 +45,11 @@ Joystick::Joystick(const RckamTrackerOptions &options)
 bool Joystick::isPressed()
 {
   return 0 == mcp3008_.read(switch_);
+}
+
+unsigned Joystick::swValue()
+{
+  return mcp3008_.read(switch_);
 }
 
 int Joystick::directionValue(const unsigned channel)

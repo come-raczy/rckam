@@ -37,8 +37,8 @@ class Mcp3008 : boost::noncopyable
 {
 public:
   // Pins for SPI0
-  constexpr static unsigned MISO =  9; // Note: pigpio desines BSC_MISO_2711 as 10
-  constexpr static unsigned MOSI = 10; // Note: pigpio desines BSC_MOSI_2711 as  9
+  constexpr static unsigned MISO =  9; // Note: pigpio defines BSC_MISO_2711 as 10
+  constexpr static unsigned MOSI = 10; // Note: pigpio defines BSC_MOSI_2711 as  9
   constexpr static unsigned SCLK = BSC_SCL_SCLK_2711; // expected to be 11
   constexpr static unsigned  CE0 = BSC_CE_N_2711;     // expected to be 8
   constexpr static unsigned  CE1 =  9; // Note: not defined in pigpio

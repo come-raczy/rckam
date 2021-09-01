@@ -15,6 +15,7 @@
 #include "PanTiltMotors.hpp"
 
 #include <cassert>
+#include <iostream>
 
 namespace rckam
 {
@@ -23,20 +24,20 @@ namespace tracker
 
 PanTiltMotors::PanTiltMotors(const unsigned ain1, const unsigned ain2,
                              const unsigned bin1, const unsigned bin2,
-                             const unsigned pwma, const unsigned pwmb,
+                             const unsigned pwmA, const unsigned pwmB,
                              const unsigned stby, const unsigned pwmFreq,
                              const unsigned panA, const unsigned panB,
                              const unsigned tiltA, const unsigned tiltB)
-: tb6612fng_(ain1, ain2, bin1, bin2, pwma, pwmb, stby, pwmFreq)
+: tb6612fng_(ain1, ain2, bin1, bin2, pwmA, pwmB, stby, pwmFreq)
 , encoders_{Encoder(panA, panB), Encoder(tiltA, tiltB)}
 , gotoMonitors_{encoders_[0], encoders_[1]}
 {
+  std::cerr << "INFO: PanTiltMotors constructed succesfully" << std::endl;
 }
 
 PanTiltMotors::~PanTiltMotors()
 {
 }
-
 void PanTiltMotors::pan(int duty)
 {
   assert((-100 <= duty) && (100 >= duty));
@@ -97,15 +98,20 @@ void PanTiltMotors::gotoPosition(const int pan, const int tilt)
   tiltGotoMonitor.setFinalPosition(tilt);
   tiltGotoMonitor.setStopFunction(std::bind(static_cast<void(PanTiltMotors::*)(int)>(&PanTiltMotors::tilt), this, 0));
   tiltEncoder.setCallback(std::bind(&GotoMonitor::callback, tiltGotoMonitor, std::placeholders::_1));
-  // TODO: add a timer to check the situation where the goto hits the kill switch
   // set the direction and duty for each motor
+  this->pan(panDirection, 20);
+  this->tilt(tiltDirection, 20);
+}
+
+void PanTiltMotors::drive()
+{
+  tb6612fng_.drive();
 }
 
 void PanTiltMotors::standby()
 {
   tb6612fng_.standby();
 }
-
 } // namespace tracker
 } // namespace rckam
 

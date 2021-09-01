@@ -47,7 +47,9 @@ int main(int argc, char *argv[])
   }
   try
   {
+    std::cerr << "INFO: creating controller instance..." << std::endl;
     rckam::tracker::Controller controller(options);
+    std::cerr << "INFO: controller instance created succesfully" << std::endl;
     controller.run();
   }
   catch (...)

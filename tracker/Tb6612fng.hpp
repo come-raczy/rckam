@@ -55,7 +55,7 @@ public:
   enum class Motor {A = 0, B = 1};
   enum class Direction {CCW = 0, CW = 1};
   /// Connects and initializes the H-bridge and sets it to standby
-  Tb6612fng(unsigned ain1, unsigned ain2, unsigned bin1, unsigned bin2, unsigned pwma, unsigned pwmb, unsigned stby, unsigned pwmFreq);
+  Tb6612fng(unsigned ain1, unsigned ain2, unsigned bin1, unsigned bin2, unsigned pwmA, unsigned pwmB, unsigned stby, unsigned pwmFreq);
   /// set the direction of the specified motor
   void setDirection(Motor motor, Direction direction);
   /// set the duty of the motor as a percentage [0, 100]

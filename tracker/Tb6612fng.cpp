@@ -27,13 +27,14 @@ namespace rckam
 namespace tracker
 {
 
-Tb6612fng::Tb6612fng(const unsigned ain1, const unsigned ain2, const unsigned bin1, const unsigned bin2, const unsigned pwma, const unsigned pwmb, const unsigned stby, const unsigned pwmFreq)
+Tb6612fng::Tb6612fng(const unsigned ain1, const unsigned ain2, const unsigned bin1, const unsigned bin2, const unsigned pwmA, const unsigned pwmB, const unsigned stby, const unsigned pwmFreq)
 : in1_{ain1, bin1}
 , in2_{ain2, bin2}
-, pwm_{pwma, pwmb}
+, pwm_{pwmA, pwmB}
 , stby_(stby)
 , freq_(pwmFreq)
 {
+  std::cerr << "INFO: initializing Tb6612fng..." << std::endl;
   // TODO: initialize the GPIOs to output
   for (const auto in: {in1_, in2_, pwm_})
   {
@@ -47,6 +48,7 @@ Tb6612fng::Tb6612fng(const unsigned ain1, const unsigned ain2, const unsigned bi
       }
     }
   }
+  std::cerr << "INFO: Tb6612fng constructed succesfully" << std::endl;
 }
 
 void Tb6612fng::setDuty(const Motor motor, const unsigned duty)
@@ -77,6 +79,16 @@ void Tb6612fng::setDirection(const Motor motor, const Direction direction)
     }
     level = (level + 1) % 2;
   }
+}
+
+void Tb6612fng::standby()
+{
+  gpioWrite(stby_, 0);
+}
+
+void Tb6612fng::drive()
+{
+  gpioWrite(stby_, 1);
 }
 
 } // namespace tracker

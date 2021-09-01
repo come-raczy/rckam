@@ -38,12 +38,28 @@ RckamTrackerOptions::RckamTrackerOptions()
 {
   namedOptions_.add_options()("help,h", "produce help message and exit");
   namedOptions_.add_options()(
-      "help-md", "produce help message pre-formatted as a markdown file section and exit");
+    "help-md", "produce help message pre-formatted as a markdown file section and exit");
   namedOptions_.add_options()(
-      "help-defaults", "produce tab-delimited list of command line options and their default values");
+    "help-defaults", "produce tab-delimited list of command line options and their default values");
   namedOptions_.add_options()("version,V", bpo::bool_switch(&version_), "print program version information");
   namedOptions_.add_options()(
-      "response-file", bpo::value<std::string>(), "file with more command line arguments");
+    "response-file", bpo::value<std::string>(), "file with more command line arguments");
+  namedOptions_.add_options()(
+    "switchChannel",  bpo::value<unsigned>(&switchChannel)->default_value(switchChannel), "ADC channel for the joystick switch")(
+    "vrxChannel",  bpo::value<unsigned>(&vrxChannel)->default_value(vrxChannel), "ADC channel for the joystick vrx")(
+    "vryChannel",  bpo::value<unsigned>(&vryChannel)->default_value(vryChannel), "ADC channel for the joystick vry")(
+    "ain1",  bpo::value<unsigned>(&ain1)->default_value(ain1), "GPIO pin used as input 1 of motor A (BCM number)")(
+    "ain2",  bpo::value<unsigned>(&ain2)->default_value(ain2), "GPIO pin used as input 2 of motor A (BCM number)")(
+    "bin1",  bpo::value<unsigned>(&bin1)->default_value(bin1), "GPIO pin used as input 1 of motor B (BCM number)")(
+    "bin2",  bpo::value<unsigned>(&bin2)->default_value(bin2), "GPIO pin used as input 2 of motor B (BCM number)")(
+    "pwmA",  bpo::value<unsigned>(&pwmA)->default_value(pwmA), "GPIO pin used as PWM control of motor A (BCM number)")(
+    "pwmB",  bpo::value<unsigned>(&pwmB)->default_value(pwmB), "GPIO pin used as PWM control of motor B (BCM number)")(
+    "stby",  bpo::value<unsigned>(&stby)->default_value(stby), "GPIO pin used for standby mode on TB6612FNG  (BCM number)")(
+    "pwmFreq",  bpo::value<unsigned>(&pwmFreq)->default_value(pwmFreq), "PWM frequency to use for TB6612FNG")(
+    "panA",  bpo::value<unsigned>(&panA)->default_value(panA), "GPIO pin used for channel A of encoder for panning (BCM number)")(
+    "panB",  bpo::value<unsigned>(&panB)->default_value(panB), "GPIO pin used for channel B of encoder for panning (BCM number)")(
+    "tiltA",  bpo::value<unsigned>(&tiltA)->default_value(tiltA), "GPIO pin used for channel A of encoder for tilting (BCM number)")(
+    "tiltB",  bpo::value<unsigned>(&tiltB)->default_value(tiltB), "GPIO pin used for channel B of encoder for tilting (BCM number)");
 }
 
 RckamTrackerOptions::Action RckamTrackerOptions::parse(int argc, const char* const argv[])

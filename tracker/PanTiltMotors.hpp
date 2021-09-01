@@ -48,7 +48,7 @@ public:
    ** GPIO pins connected to the TB6612FNG (OUTPUT GPIOs):
    ** - ain1 and ain2: inputs controlling direction and mode of motor A
    ** - bin1 and bin2: inputs controlling direction and mode of motor B
-   ** - pwma and pwmb: PWM signal for motor A and motor B respectively
+   ** - pwmA and pwmB: PWM signal for motor A and motor B respectively
    ** - stby: standby (HIGH for normal operation)
    **
    ** GPIO pins connected to the encoders (INPUT GPIOs):
@@ -58,7 +58,7 @@ public:
    ** Other parameters:
    ** - pwmFreq: the operating frequency to use for the PWM signqal
    **/
-  PanTiltMotors(unsigned ain1, unsigned ain2, unsigned bin1, unsigned bin2, unsigned pwma, unsigned pwmb, unsigned stby, unsigned pwmFreq, unsigned panA, unsigned panB, unsigned tiltA, unsigned tiltB);
+  PanTiltMotors(unsigned ain1, unsigned ain2, unsigned bin1, unsigned bin2, unsigned pwmA, unsigned pwmB, unsigned stby, unsigned pwmFreq, unsigned panA, unsigned panB, unsigned tiltA, unsigned tiltB);
   ~PanTiltMotors();
   /// pan at the specified duty - [-100, 100], negatif is CCW
   void pan(int duty);
@@ -68,10 +68,16 @@ public:
   void tilt(int duty);
   ///  at in the specified direction at the specified duty [0, 100]
   void tilt(Direction direction, unsigned duty);
+  /// get the current pan position
+  int panPosition() {return panEncoder().counter();}
+  /// get the current tilt position
+  int tiltPosition() {return tiltEncoder().counter();}
   /// set the current position as the zero position
   void setZero();
   /// go to the specidied absolute position
   void gotoPosition(int pan, int tilt);
+  /// drive
+  void drive();
   /// standby
   void standby();
 private:
@@ -94,6 +100,8 @@ private:
     Stop stop_;
   };
   std::array<GotoMonitor, 2> gotoMonitors_;
+  Encoder &panEncoder() {return encoders_[static_cast<unsigned>(PAN)];}
+  Encoder &tiltEncoder() {return encoders_[static_cast<unsigned>(TILT)];}
 };
 
 } // namespace tracker

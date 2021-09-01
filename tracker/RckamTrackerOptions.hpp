@@ -52,27 +52,35 @@ public:
   static std::string version() { return std::string(std::string("rckam-tracker version ") + STRINGIFY(RCKAM_VERSION) + "-" + STRINGIFY(VERSION_STRING)); }
   
   /// ADC channel for the joystick switch
-  unsigned switchChannel = 0;
+  unsigned switchChannel = 7;
   /// ADC channel for X control
-  unsigned vrxChannel = 1;
+  unsigned vrxChannel = 6;
   /// ADC channel for Y control
-  unsigned vryChannel = 3;
+  unsigned vryChannel = 5;
   /// GPIO pin to TB6612FNG AIN1
-  unsigned ain1 = 29;
+  unsigned ain1 = 16; // BCM 16 == BOARD 36
   /// GPIO pin to TB6612FNG AIN2
-  unsigned ain2 = 31;
+  unsigned ain2 = 20; // BCM 20 == BOARD 38
   /// GPIO pin to TB6612FNG PWMA
-  unsigned pwma = 33; // PWM0
+  unsigned pwmA = 13; // BCM 13 == BOARD 33 == PWM1
   /// GPIO pin to TB6612FNG BIN1
-  unsigned bin1 = 8;
+  unsigned bin1 = 14; // BCM 14 == BOARD  8 == TXD
   /// GPIO pin to TB6612FNG BIN2
-  unsigned bin2 = 10;
+  unsigned bin2 = 15; // BCM 15 == BOARD 10 == RXD
   /// GPIO pin to TB6612FNG PWMB
-  unsigned pwmb = 12; // PWM1
+  unsigned pwmB = 18; // BCM 18 == BOARD 12 == PWM0
   /// GPIO pin to TB6612FNG STBY
-  unsigned stby = 16;
+  unsigned stby = 23; // BCM 23 == BOARD 16
   /// PWM frequency for HW PWM control of the motors
-  unsigned pwmFreq = 100000;
+  unsigned pwmFreq = 200;
+  /// GPIO pin from channel A of encoder for pan motor
+  unsigned panA = 2; // BCM 2 == BOARD 3
+  /// GPIO pin from channel B of encoder for pan motor
+  unsigned panB = 3; // BCM 3 == BOARD 5
+  /// GPIO pin from channel A of encoder for tilt motor
+  unsigned tiltA = 19; // BCM 19 == BOARD 35 == MISO
+  /// GPIO pin from channel B of encoder for tilt motor
+  unsigned tiltB = 26; // BCM 26 == BOARD 37
 protected:
   bool                                version_ = false;
   bpo::options_description            namedOptions_;

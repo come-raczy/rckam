@@ -17,7 +17,6 @@
 
 #include <boost/core/noncopyable.hpp>
 
-#include "RckamTrackerOptions.hpp"
 #include "Mcp3008.hpp"
 
 namespace rckam
@@ -35,9 +34,11 @@ namespace tracker
 class Joystick : boost::noncopyable
 {
 public:
-  Joystick(const RckamTrackerOptions &options);
+  Joystick(unsigned switchChannel, unsigned vrxChannel, unsigned vryChannel);
   /// returns true when the switch is pressed
   bool isPressed();
+  /// returns true when the switch is pressed
+  unsigned swValue();
   /// returns a percentage of X motion (value in [-100, +100]
   int xValue();
   /// returns a percentage of Y motion (value in [-100, +100]

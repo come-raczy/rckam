@@ -15,6 +15,7 @@
 #include "Encoder.hpp"
 
 #include <cassert>
+#include <iostream>
 #include <boost/format.hpp>
 #include <pigpio.h>
 
@@ -33,6 +34,7 @@ Encoder::Encoder(const unsigned a, const unsigned b)
 , states_{1, 1}
 , callback_(nullptr)
 {
+  std::cerr << "INFO: initializing encoder on GPIOS " << a << " and " << b << std::endl;
   for (const auto gpio: gpios_)
   {
     const auto ret = gpioSetMode(gpio, PI_INPUT);
@@ -46,6 +48,7 @@ Encoder::Encoder(const unsigned a, const unsigned b)
     // monitor encoder level changes
     gpioSetAlertFuncEx(gpio, interrupt, this);
   }
+  std::cerr << "INFO: Encoder constructed succesfully" << std::endl;
 }
 
 Encoder::~Encoder()

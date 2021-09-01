@@ -38,9 +38,8 @@ public:
   Controller(const RckamTrackerOptions &options);
   void run();
 private:
-  /// dual H-bridge for the two motors
-  //const Tb6612fng tb6612fng_;
-  const Joystick joystick_;
+  PanTiltMotors panTiltMotors_;
+  Joystick joystick_;
 };
 
 } // namespace tracker
