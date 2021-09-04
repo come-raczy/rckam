@@ -78,10 +78,6 @@ void Controller::run()
   //std::cerr << "position: " << panTiltMotors_.panPosition() << ", " << panTiltMotors_.tiltPosition() << std::endl;
 
   bool done = false;
-  gpioSetAlertFunc(4, f);
-  gpioSetAlertFunc(6, f);
-  gpioSetAlertFunc(14, f);
-  gpioSetAlertFunc(15, f);
   while (!done)
   {
     std::cerr << "Joystick: " << joystick_.swValue() << ", " << joystick_.xValue() << ", " << joystick_.yValue() << std::endl;

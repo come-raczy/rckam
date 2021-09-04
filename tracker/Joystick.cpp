@@ -57,7 +57,8 @@ int Joystick::directionValue(const unsigned channel)
   const auto maxValue = static_cast<float>(mcp3008_.getMaxValue());
   const auto neutralValue = maxValue / 2;
   const auto currentValue = static_cast<float>(mcp3008_.read(channel));
-  return round((currentValue - neutralValue) / neutralValue * 100);
+  int value = round((currentValue - neutralValue) / neutralValue * 100 / 5);
+  return ((value <= -5) || value >= 5) ? value : 0;
 }
 
 int Joystick::xValue()
