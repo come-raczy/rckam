@@ -12,9 +12,14 @@
  ** <https://fsf.org/>
  **/
 
+#include <memory>
 #include <iostream>
+#include <gphoto2/gphoto2-camera.h>
 
 #include "RckamCameraOptions.hpp"
+#include "Gphoto2Context.hpp"
+#include "CameraList.hpp"
+#include "Camera.hpp"
 
 int main(int argc, char *argv[])
 {
@@ -37,8 +42,23 @@ int main(int argc, char *argv[])
     return -1;
   }
   assert(rt::RckamCameraOptions::RUN == action);
+  rckam::camera::Gphoto2Context context;
   try
   {
+    rckam::camera::CameraList cameraList(context);
+    if (0 < cameraList.count())
+    {
+      for (unsigned i = 0; i < cameraList.count(); ++i)
+      {
+        std::cerr << "   - " << cameraList.name(i) << ": " << cameraList.value(i) << std::endl;
+      }
+      const unsigned selected = 0;
+      rckam::camera::Camera camera(cameraList.name(selected), cameraList.value(selected), context);
+    }
+    else
+    {
+      std::cerr << "WARNING: no camera detected. Exiting." << std::endl;
+    }
   }
   catch (...)
   {

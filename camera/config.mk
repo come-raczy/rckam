@@ -172,6 +172,8 @@ endif # ifneq (,$(GTEST_LIBRARYDIR))
 
 GTEST_LDFLAGS+= -lgtest_main -lgtest
 
+LDFLAGS+= -lgphoto2 -lgphoto2_port
+
 ############################################################
 ##
 ## Basic verification
