@@ -17,20 +17,29 @@
 
 #include <string>
 
+#include <boost/core/noncopyable.hpp>
 #include <gphoto2/gphoto2-camera.h>
 
 #include "Gphoto2Context.hpp"
+#include "CameraFile.hpp"
 
 namespace rckam
 {
 namespace camera
 {
-
-class Camera
+/**
+ ** \brief Encapsulation of the gphoto2 Camera concept and relevant functions
+ **
+ ** Can't be copied as the destructor does call the functions gp_camera_exit
+ ** and g_camera_free on the underlying gphoto2 camera pointer.
+ **/
+class Camera: boost::noncopyable
 {
 public:
   Camera(const char *model, const char *port, Gphoto2Context &context);
   ~Camera();
+  /// capture an image into the given camera file and returtn the size
+  unsigned long int capture(CameraFile &cameraFile);
 private:
   /// the underlying gphoto2 camera
   ::Camera *camera_;

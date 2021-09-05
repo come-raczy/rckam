@@ -14,6 +14,7 @@
 
 #include "Camera.hpp"
 
+#include <iostream>
 #include <boost/format.hpp>
 
 #include "Exceptions.hpp"
@@ -41,6 +42,25 @@ Camera::~Camera()
 {
   gp_camera_exit (camera_, *context_);
   gp_camera_free (camera_);
+}
+
+unsigned long int Camera::capture(CameraFile &cameraFile)
+{
+  const auto ret1 = gp_camera_capture_preview(camera_, cameraFile, *context_);
+  if (GP_OK != ret1)
+  {
+    auto message = boost::format("ERROR: failed to capture preview: %i") % ret1;
+    BOOST_THROW_EXCEPTION(Gphoto2Exception(message.str()));
+  }
+  const char *data = nullptr;
+  unsigned long int size;
+  const auto ret2 = gp_file_get_data_and_size(cameraFile, &data, &size);
+  if (GP_OK != ret2)
+  {
+    auto message = boost::format("ERROR: failed to get data and size from camera file: %i") % ret2;
+    BOOST_THROW_EXCEPTION(Gphoto2Exception(message.str()));
+  }
+  return size;
 }
 
 void Camera::setAbilities(const char *model)

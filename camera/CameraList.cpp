@@ -55,7 +55,7 @@ CameraList::~CameraList()
   }
 }
 
-const char * CameraList::name(const unsigned i) const
+const char * CameraList::model(const unsigned i) const
 {
   assert(count_ > i);
   const char * tmp;
@@ -63,7 +63,7 @@ const char * CameraList::name(const unsigned i) const
   return tmp;
 }
 
-const char * CameraList::value(const unsigned i) const
+const char * CameraList::port(const unsigned i) const
 {
   assert(count_ > i);
   const char * tmp;

@@ -19,7 +19,7 @@
 #include "RckamCameraOptions.hpp"
 #include "Gphoto2Context.hpp"
 #include "CameraList.hpp"
-#include "Camera.hpp"
+#include "CameraController.hpp"
 
 int main(int argc, char *argv[])
 {
@@ -50,10 +50,14 @@ int main(int argc, char *argv[])
     {
       for (unsigned i = 0; i < cameraList.count(); ++i)
       {
-        std::cerr << "   - " << cameraList.name(i) << ": " << cameraList.value(i) << std::endl;
+        std::cerr << "   - " << cameraList.model(i) << ": " << cameraList.port(i) << std::endl;
       }
       const unsigned selected = 0;
-      rckam::camera::Camera camera(cameraList.name(selected), cameraList.value(selected), context);
+      const auto model = cameraList.model(selected);
+      const auto port = cameraList.port(selected);
+      //rckam::camera::Camera camera(cameraList.name(selected), cameraList.value(selected), context);
+      rckam::camera::CameraController controller(model, port, context);
+      controller.run();
     }
     else
     {

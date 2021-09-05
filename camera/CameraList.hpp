@@ -30,8 +30,10 @@ public:
   CameraList(Gphoto2Context &context);
   ~CameraList();
   unsigned count() const {return count_;}
-  const char *name(unsigned i) const;
-  const char *value(unsigned i) const;
+  /// camera model
+  const char *model(unsigned i) const;
+  /// port where the camera is connected
+  const char *port(unsigned i) const;
 private:
   /// the underlying gphoto2 CameraList
   ::CameraList *cameraList_;
