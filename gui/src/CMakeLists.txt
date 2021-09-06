@@ -15,7 +15,7 @@ set (rckam_ALL_LIBRARIES
     common
     options
     devices
-#    models
+    models
     )
 
 if    (rckam_FORCE_STATIC_LINK)

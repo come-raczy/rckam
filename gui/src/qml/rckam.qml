@@ -3,8 +3,10 @@ import QtQuick.Window 2.12
 import QtQuick.Controls 2.12
 import QtQuick.Controls.Material 2.12
 import QtQuick.Layouts 1.12
+import myextension 1.0
 
 ApplicationWindow {
+    objectName: "rckamApplicationWindow"
     id: window
     //width: 360
     //height: 520
@@ -77,7 +79,7 @@ ApplicationWindow {
                   y : 0
                 }
                 checkable: true
-                checked: true
+                checked: false
                 ButtonGroup.group: radioGroup
                 onClicked: {console.log("clicked", text); cameraSettingsButton.checkable = cameraSettingsButton.checkable ? false : true;}
                 onCheckedChanged: {console.log("Checked changed", text); globalSettings.visible = checked; cameraSettingsButton.checkable = true;}
@@ -85,7 +87,7 @@ ApplicationWindow {
             ToolButton {
                 id: cameraSettingsButton
                 Layout.fillWidth : true
-                icon.source: "icons/camera-off.svg"
+                icon.source: checkable ? "icons/camera.svg" : "icons/camera-off.svg"
                 ToolTip {
                   visible: parent.hovered
                   text: "camera settings"
@@ -95,7 +97,7 @@ ApplicationWindow {
                 checkable: false
                 checked: false
                 ButtonGroup.group: radioGroup
-                onCheckableChanged: {icon.source = checkable ? "qrc:/icons/camera.svg" : "qrc:/icons/camera-off.svg";}
+                // onCheckableChanged: {icon.source = checkable ? "qrc:/icons/camera.svg" : "qrc:/icons/camera-off.svg";}
                 onCheckedChanged: {console.log("Checked changed", text); cameraSettings.visible = checked;}
             }
             ToolButton {
@@ -107,12 +109,13 @@ ApplicationWindow {
                   x : parent.width
                   y : 0
                 }
-                icon.source: "icons/eye-off.svg"
+                icon.source: checked ? "icons/eye.svg" : "icons/eye-off.svg"
                 //icon.color: "transparent"
-                checkable: false
-                checked: false
+                checkable: true
+                checked: true
                 ButtonGroup.group: radioGroup
-                onCheckedChanged: {console.log("Checked changed", text); liveView.visible = checked;}
+                onCheckableChanged: {console.log("liveViewButton: Check blechanged", text); liveView.visible = checked;}
+                onCheckedChanged: {console.log("liveViewButton: Checked changed", text); liveView.visible = checked;}
             }
             Item { Layout.fillHeight : true }
         }
@@ -129,7 +132,21 @@ ApplicationWindow {
     }
     LiveView {
         id: liveView
-        visible: false
-        color: "blue"
+        visible: true
+        //color: "blue"
+        //Image {
+        //  id: liveViewImage
+        //  source: "file:///mnt/c/Users/comer/Downloads/tmp/preview-00000-19\:32\:41.850.jpg"
+        //  visible: true
+        //  onStatusChanged: if (status == Image.Ready) console.log('Loaded')
+        //}
+        ImagePreview {
+          objectName: "imagePreview"
+          id: imagePreview
+          height: 640
+          width: 960
+          //height: parent.height
+          //width: parent.width
+        }
     }
 }

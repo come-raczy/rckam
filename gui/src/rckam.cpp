@@ -1,20 +1,15 @@
 /**
- ** rckam: a Qt remote control for digital cameras
+ ** rckam
+ ** Copyright (c) 2020-2021 Come Raczy
+ ** All rights reserved.
  **
- ** Copyright (C) <year>  <name of author>
+ ** This software is provided under the terms and conditions of the
+ ** GNU AFFERO GENERAL PUBLIC LICENSE
  **
- ** This program is free software: you can redistribute it and/or modify
- ** it under the terms of the GNU Affero General Public License as
- ** published by the Free Software Foundation, either version 3 of the
- ** License, or (at your option) any later version.
- **
- ** This program is distributed in the hope that it will be useful,
- ** but WITHOUT ANY WARRANTY; without even the implied warranty of
- ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- ** GNU Affero General Public License for more details.
- **
- ** You should have received a copy of the GNU Affero General Public License
- ** along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ ** You should have received a copy of the
+ ** GNU AFFERO GENERAL PUBLIC LICENSE
+ ** along with this program. If not, see
+ ** <https://fsf.org/>
  **/
 
 #include <iostream>
@@ -31,6 +26,8 @@
 #include "common/Debug.hpp"
 #include "common/Exceptions.hpp"
 #include "options/RckamOptions.hpp"
+#include "models/ImagePreview.hpp"
+#include "devices/ImageLoader.hpp"
 //#include "models/Camera.hpp"
 //#include "models/UsbCameraList.hpp"
 //#include "devices/UsbPorts.hpp"
@@ -74,8 +71,8 @@ void rckamGui(const rckam::options::RckamOptions &options)
 //  std::cerr << c.product.toUtf8().constData() << std::endl;
 //}
 
-
-  QQmlContext *context = engine.rootContext();
+  qmlRegisterType<rckam::models::ImagePreview>("myextension", 1, 0, "ImagePreview");
+  //QQmlContext *context = engine.rootContext();
   //context->setContextProperty("camera", &camera);
   //context->setContextProperty("usbCameraList", &usbCameraList);
 
@@ -83,6 +80,26 @@ void rckamGui(const rckam::options::RckamOptions &options)
   engine.load(QUrl(QStringLiteral("qrc:/rckam.qml")));
   if (engine.rootObjects().isEmpty())
     BOOST_THROW_EXCEPTION(rckam::common::RckamException(-1, "engine.rootObjects().isEmpty()"));
+
+  // Select the root object named rckamApplicationWindow
+  int index = 0;
+  while ((engine.rootObjects().size() > index) && (engine.rootObjects()[index]->objectName().toStdString() != "rckamApplicationWindow"))
+  {
+    ++index;
+  }
+  if (engine.rootObjects().size() <= index)
+  {
+    BOOST_THROW_EXCEPTION(rckam::common::QmlException("ERROR: failed to find rckam Application Window in QML Application Engine"));
+  }
+  auto rckamApplicationWindow = engine.rootObjects()[index];
+  auto imagePreview = rckamApplicationWindow->findChild< rckam::models::ImagePreview *>("imagePreview");
+  if (nullptr == imagePreview)
+  {
+    BOOST_THROW_EXCEPTION(rckam::common::QmlException("ERROR: failed to find image preview in QML Application Engine"));
+  }
+
+  // start the background imageLoader
+  rckam::devices::ImageLoader imageLoader(imagePreview);
   const auto ret = app.exec();
   if (0!= ret)
   {

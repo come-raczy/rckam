@@ -9,5 +9,6 @@
         <file>icons/camera-off.svg</file>
         <file>icons/eye.svg</file>
         <file>icons/eye-off.svg</file>
+        <file>images/no_image.png</file>
     </qresource>
 </RCC>
