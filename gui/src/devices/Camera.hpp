@@ -24,7 +24,7 @@
 #include <vector>
 #include <memory>
 
-#include <gphoto2/gphoto2.h>
+//#include <gphoto2/gphoto2.h>
 
 namespace rckam
 {
@@ -44,9 +44,9 @@ public:
     // capture a preview and return the buffer
     //char *capturePreview();
 private:
-    typedef ::Camera GpCamera;
-    std::unique_ptr<GPContext, decltype(std::free) *> context;
-    GpCamera *gpCamera; // not using unique_ptr because of gp_camera_unref
+//    typedef ::Camera GpCamera;
+//    std::unique_ptr<GPContext, decltype(std::free) *> context;
+//    GpCamera *gpCamera; // not using unique_ptr because of gp_camera_unref
 };
 
 } // namespace devices

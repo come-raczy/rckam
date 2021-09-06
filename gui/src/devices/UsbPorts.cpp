@@ -28,6 +28,7 @@ namespace rckam
 namespace devices 
 {
 
+#if 0
 /**
  * \brief Exception thrown when there are problems with an USB operations
  */
@@ -109,6 +110,8 @@ std::vector<DeviceInfo> UsbPorts::listDevices()
     libusb_free_device_list(devices, 0);
     return result;
 }
+
+#endif
 
 } // namespace devices
 } // namespace rckam

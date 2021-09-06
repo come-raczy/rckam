@@ -25,18 +25,19 @@
 #include <string>
 
 // silence zero-sized arrays
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wpedantic"
-#include <libusb.h>
-#pragma GCC diagnostic pop
+//#pragma GCC diagnostic push
+//#pragma GCC diagnostic ignored "-Wpedantic"
+//#include <libusb.h>
+//#pragma GCC diagnostic pop
 
-#include <libudev.h>
+//#include <libudev.h>
 
 namespace rckam
 {
 namespace devices 
 {
 
+#if 0
 struct DeviceInfo
 {
     uint8_t busNumber;
@@ -62,6 +63,7 @@ private:
     std::string getVendorString(uint16_t vid);
     std::string getProductString(uint16_t vid, uint16_t pid);
 };
+#endif
 
 } // namespace devices
 } // namespace rckam

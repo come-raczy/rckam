@@ -1,5 +1,48 @@
 # A Qt remote control for digital cameras
 
+There are several ways to control a camera remotely. The simplest might be to
+use usbip to export the USB port where the camera is connected. The main issues
+with this approach are:
+
+- usbip might not be freely availableon the client (e.g. MS Windows, Android).
+- the client might not even have access to the USB port (e.g. WSL)
+- no control on the part of data transfer that needs to be optimized (previews)
+
+The alternative is to run the control of the camera locally and to communicate
+with the client over sockets. It is a little bit more work but that's a small
+price for portability and - more importantly - lower latency in the previews.
+
+This is the GUI on the client side. It is connected via a pair of sockets to
+the server where the camera is. The sockets are:
+
+- a dedicated UDP socket for image data exclusively
+- a TCP/IP socket for communication and synchronization
+
+The GUI is divided into three domains of functionalities
+
+- a preview area that displays the image previews as they are captured
+- a camera control and status area
+- a gimbal control area
+
+Note that some of the camera controls and the gimbal controls might overlap
+the preview area (e.g. pointing the gimbal into the right direction, selecting
+autofocus areas, etc.)
+
+## Requirements
+   ============
+
+* qtcreator (>= 4.11.0)
+* qt-5-default (>= 5.12.8)
+* qml (>= 5.12.8)
+* qtdeclarative5-dev (>= 5.12.8)
+* qml-module-qtquick-controls2 (>= 5.12.8)
+* libqt5svg5-dev (>= 5.12.8)
+* Cmake (>= 3.18.1)
+* boost (>= 1.71)
+
+# Obsolete
+  ========
+
 This project uses libgphoto2, usbip and openwrt to control remotely any
 camera supported by libgphoto2 over any WiFi Access Point (AP) that can
 run some version of linux, especially openwrt. This includes many cheap

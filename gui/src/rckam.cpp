@@ -31,9 +31,9 @@
 #include "common/Debug.hpp"
 #include "common/Exceptions.hpp"
 #include "options/RckamOptions.hpp"
-#include "models/Camera.hpp"
-#include "models/UsbCameraList.hpp"
-#include "devices/UsbPorts.hpp"
+//#include "models/Camera.hpp"
+//#include "models/UsbCameraList.hpp"
+//#include "devices/UsbPorts.hpp"
 
 void rckamGui(const rckam::options::RckamOptions &options);
 
@@ -45,15 +45,15 @@ int main(int argc, char *argv[])
 void rckamGui(const rckam::options::RckamOptions &options)
 {
   std::cerr << "rckamGui: " << options.description << std::endl;
-  rckam::devices::UsbPorts usbPorts;
-  const auto usbDevices = usbPorts.listDevices();
-  std::cerr << "found " << usbDevices.size() << " USB devices:" << std::endl;
-  for (const auto &device: usbDevices)
-  {
-    const auto d = device.descriptor;
-    const auto message = boost::format("bus:%2i port:%2i address:%2i type: %4i bcd: 0x%04x class: 0x%02x:0x%02x protocol: 0x%02x vendor: 0x%04x product: 0x%04x %s - %s") % (int)device.busNumber % (int)device.portNumber % (int)device.address % (int)d.bDescriptorType % d.bcdUSB % (int)d.bDeviceClass % (int)d.bDeviceSubClass % d.bDeviceProtocol % d.idVendor % d.idProduct % device.vendor % device.product;
-    std::cerr << message.str() << std::endl;
-  }
+  //rckam::devices::UsbPorts usbPorts;
+  //const auto usbDevices = usbPorts.listDevices();
+  //std::cerr << "found " << usbDevices.size() << " USB devices:" << std::endl;
+  //for (const auto &device: usbDevices)
+  //{
+  //  const auto d = device.descriptor;
+  //  const auto message = boost::format("bus:%2i port:%2i address:%2i type: %4i bcd: 0x%04x class: 0x%02x:0x%02x protocol: 0x%02x vendor: 0x%04x product: 0x%04x %s - %s") % (int)device.busNumber % (int)device.portNumber % (int)device.address % (int)d.bDescriptorType % d.bcdUSB % (int)d.bDeviceClass % (int)d.bDeviceSubClass % d.bDeviceProtocol % d.idVendor % d.idProduct % device.vendor % device.product;
+  //  std::cerr << message.str() << std::endl;
+  //}
 
   int argc = 0;
   char arg0[] = "dummy";
@@ -64,20 +64,20 @@ void rckamGui(const rckam::options::RckamOptions &options)
   QQmlApplicationEngine engine;
   //QQmlContext *objectContext = new QQmlContext(engine.rootContext());
 
-  rckam::models::Camera camera;
-  rckam::models::UsbCameraList usbCameraList;
-  usbCameraList.scanPorts();
+  //rckam::models::Camera camera;
+  //rckam::models::UsbCameraList usbCameraList;
+  //usbCameraList.scanPorts();
 
-for (int i = 0; i < usbCameraList.rowCount(); ++i)
-{
-  const auto c = usbCameraList.camera(i);
-  std::cerr << c.product.toUtf8().constData() << std::endl;
-}
+//for (int i = 0; i < usbCameraList.rowCount(); ++i)
+//{
+//  const auto c = usbCameraList.camera(i);
+//  std::cerr << c.product.toUtf8().constData() << std::endl;
+//}
 
 
   QQmlContext *context = engine.rootContext();
-  context->setContextProperty("camera", &camera);
-  context->setContextProperty("usbCameraList", &usbCameraList);
+  //context->setContextProperty("camera", &camera);
+  //context->setContextProperty("usbCameraList", &usbCameraList);
 
   std::cerr << "Loading rckam.qml" << std::endl;
   engine.load(QUrl(QStringLiteral("qrc:/rckam.qml")));

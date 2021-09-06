@@ -28,9 +28,10 @@ namespace devices
 {
 
 Camera::Camera()
-    : context(gp_context_new(), std::free)
-    , gpCamera(nullptr)
+//    : context(gp_context_new(), std::free)
+//    , gpCamera(nullptr)
 {
+#if 0
     const auto ret = gp_camera_new(&gpCamera);
     if (GP_OK != ret)
     {
@@ -44,16 +45,20 @@ Camera::Camera()
                 break;
         }
     }
+#endif
 }
 
 Camera::~Camera()
 {
+#if 0
     if (nullptr != gpCamera)
     {
         gp_camera_unref(gpCamera); // gp_camera_free is deprecated
     }
+#endif
 }
 
+#if 0
 std::vector<std::string> Camera::listCameras()
 {
     return std::vector<std::string>();
@@ -81,6 +86,7 @@ void Camera::connect(const std::string name)
 void Camera::disconnect()
 {
 }
+#endif
 
 } // namespace devices
 } // namespace rckam

@@ -15,7 +15,7 @@ set (rckam_ALL_LIBRARIES
     common
     options
     devices
-    models
+#    models
     )
 
 if    (rckam_FORCE_STATIC_LINK)
@@ -35,15 +35,15 @@ endif (rckam_FORCE_STATIC_LINK)
 find_package(Boost 1.67 REQUIRED COMPONENTS ${rckam_BOOST_COMPONENTS})
 rckam_find_library(ZLIB zlib.h z)
 rckam_find_library(PTHREAD pthread.h pthread)
-rckam_find_library(GPHOTO2 gphoto2/gphoto2.h gphoto2)
-rckam_find_library(UDEV libudev.h udev)
+#rckam_find_library(GPHOTO2 gphoto2/gphoto2.h gphoto2)
+#rckam_find_library(UDEV libudev.h udev)
 
 # libusb1 needs a bit more help
 #rckam_find_library(LIBUSB_1 libusb.h usb-1.0)
-find_path(LIBUSB_1_INCLUDE_DIR NAMES libusb.h PATH_SUFFIXES libusb-1.0)
-find_library(LIBUSB_1_LIBRARY NAMES usb-1.0 usb)
-message(STATUS "LIBUSB_1_INCLUDE_DIR: ${LIBUSB_1_INCLUDE_DIR}")
-message(STATUS "LIBUSB_1_LIBRARY: ${LIBUSB_1_LIBRARY}")
+#find_path(LIBUSB_1_INCLUDE_DIR NAMES libusb.h PATH_SUFFIXES libusb-1.0)
+#find_library(LIBUSB_1_LIBRARY NAMES usb-1.0 usb)
+#message(STATUS "LIBUSB_1_INCLUDE_DIR: ${LIBUSB_1_INCLUDE_DIR}")
+#message(STATUS "LIBUSB_1_LIBRARY: ${LIBUSB_1_LIBRARY}")
 
 
 find_package(Qt5 REQUIRED Core Widgets Qml Quick Gui Xml Svg)
