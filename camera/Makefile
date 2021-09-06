@@ -52,6 +52,7 @@ POSTCOMPILE ?= mv -f $(@:%.o=%.Td) $(@:%.o=%.d)
 	@mkdir -p $* && touch $@
 
 include $(RCKAM_MAKE_DIR)/libs.mk
+include $(RCKAM_MAKE_DIR)/common.mk
 
 programs_aux:=$(programs)
 include $(foreach program, $(programs), $(RCKAM_MAKE_DIR)/program.mk)

@@ -35,12 +35,13 @@ endif
 
 ############################################################
 ##
-## Compiler
+## Compiler and other tools
 ##
 ############################################################
 
 CC=gcc
 CXX=g++
+AR=ar
 
 ############################################################
 ##
@@ -98,6 +99,7 @@ $(error Failed to infer RCKAM_ROOT_DIR from MAKEFILE_LIST: $(MAKEFILE_LIST))
 endif
 
 RCKAM_SRC_DIR?=$(RCKAM_ROOT_DIR)
+RCKAM_COMMON_DIR?=$(RCKAM_ROOT_DIR)/../common
 RCKAM_MAKE_DIR?=$(RCKAM_ROOT_DIR)
 RCKAM_TEST_DIR?=$(RCKAM_ROOT_DIR)/tests
 RCKAM_BUILD_DIR_BASE?=$(RCKAM_ROOT_DIR)/build
@@ -110,6 +112,9 @@ endif
 # TODO: add support for differentiating by toolset
 RCKAM_BUILD_DIR?=$(RCKAM_BUILD_DIR_BASE)/$(BUILD_TYPE)
 BUILD:=$(RCKAM_BUILD_DIR)
+
+BUILD_COMMON:=$(BUILD)/common
+RCKAM_COMMON_LIB=$(BUILD)/common.a
 
 ############################################################
 ##
@@ -124,9 +129,15 @@ CPPFLAGS?=-Wall -ggdb3
 CPPFLAGS += -DRCKAM_VERSION="$(RCKAM_VERSION)" 
 CPPFLAGS += -DVERSION_STRING="$(VERSION_STRING)"
 CPPFLAGS += -I $(RCKAM_SRC_DIR)
+CPPFLAGS += -I $(RCKAM_COMMON_DIR)
 CXXFLAGS?=-std=c++17
 CFLAGS?=-std=c99 
+
 LDFLAGS?=
+
+# link the common library
+LDFLAGS+= $(RCKAM_COMMON_LIB)
+
 
 ifneq (,$(BOOST_LIBRARYDIR))
 LDFLAGS += -L $(BOOST_LIBRARYDIR)
@@ -198,3 +209,5 @@ programs := rckam-camera
 all_lib_sources := $(filter-out $(programs:%=$(RCKAM_SRC_DIR)/%.cpp), $(sources))
 all_lib_objects := $(all_lib_sources:$(RCKAM_SRC_DIR)/%.cpp=$(BUILD)/%.o)
 
+all_common_sources := $(wildcard $(RCKAM_COMMON_DIR)/*.cpp)
+all_common_objects := $(all_common_sources:$(RCKAM_COMMON_DIR)/%.cpp=$(BUILD_COMMON)/%.o)

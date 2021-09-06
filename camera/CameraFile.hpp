@@ -15,6 +15,8 @@
 #ifndef RCKAM_CAMERA_CAMERA_FILE_HPP
 #define RCKAM_CAMERA_CAMERA_FILE_HPP
 
+#include <tuple>
+#include <iostream>
 #include <gphoto2/gphoto2-file.h>
 
 namespace rckam
@@ -28,12 +30,15 @@ public:
   CameraFile();
   ~CameraFile();
   operator ::CameraFile *() {return cameraFile_;}
+  std::tuple<const char *, unsigned long int> getDataAndSize();
 private:
   /// the underlying gphoto2 camera
   ::CameraFile *cameraFile_;
   /// reference count
   unsigned refCount_;
 };
+
+std::ostream &operator <<(std::ostream &os, CameraFile &cameraFile);
 
 } // namespace camera
 } // namespace rckam

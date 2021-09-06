@@ -17,6 +17,8 @@
 
 #include "Gphoto2Context.hpp"
 #include "Camera.hpp"
+#include "DataSocket.hpp"
+#include "CommunicationSocket.hpp"
 
 namespace rckam
 {
@@ -33,6 +35,10 @@ public:
 private:
   /// the underlying gphoto2 camera
   Camera camera_;
+  /// the socket to transmit data (image previews)
+  DataSocket dataSocket_;
+  /// the socket for communication and synchronization
+  CommunicationSocket communicationSocket_;
 };
 
 } // namespace camera

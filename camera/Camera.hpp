@@ -39,7 +39,7 @@ public:
   Camera(const char *model, const char *port, Gphoto2Context &context);
   ~Camera();
   /// capture an image into the given camera file and returtn the size
-  unsigned long int capture(CameraFile &cameraFile);
+  unsigned long int capturePreview(CameraFile &cameraFile);
 private:
   /// the underlying gphoto2 camera
   ::Camera *camera_;

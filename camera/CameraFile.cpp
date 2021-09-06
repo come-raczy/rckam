@@ -45,6 +45,28 @@ CameraFile::~CameraFile()
   }
 }
 
+std::tuple<const char *, unsigned long int> CameraFile::getDataAndSize()
+{
+  const char *data = nullptr;
+  unsigned long int size;
+  const auto ret1 = gp_file_get_data_and_size(cameraFile_, &data, &size);
+  if (GP_OK != ret1)
+  {
+    auto message = boost::format("ERROR: failed to get data and size from camera file: %i") % ret1;
+    BOOST_THROW_EXCEPTION(Gphoto2Exception(message.str()));
+  }
+  return std::tuple<const char *, unsigned long int>(data, size);
+}
+
+std::ostream &operator <<(std::ostream &os, CameraFile &cameraFile)
+{
+  const auto dataAndSize = cameraFile.getDataAndSize();
+  const auto data = std::get<0>(dataAndSize);
+  const auto size = std::get<1>(dataAndSize);
+  os.write(data, size);
+  return os;
+}
+
 } // namespace camera
 } // namespace rckam
 

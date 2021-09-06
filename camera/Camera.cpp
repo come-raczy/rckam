@@ -44,7 +44,7 @@ Camera::~Camera()
   gp_camera_free (camera_);
 }
 
-unsigned long int Camera::capture(CameraFile &cameraFile)
+unsigned long int Camera::capturePreview(CameraFile &cameraFile)
 {
   const auto ret1 = gp_camera_capture_preview(camera_, cameraFile, *context_);
   if (GP_OK != ret1)

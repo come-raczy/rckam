@@ -28,7 +28,7 @@ endif
 
 # Objects are all created with the same rule in libs.mk
 # Only linking is required
-$(BUILD)/$(program): $(BUILD)/$(program).o $(all_lib_objects)
+$(BUILD)/$(program): $(BUILD)/$(program).o $(all_lib_objects) $(RCKAM_COMMON_LIB)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $@ $< $(all_lib_objects) $(LDFLAGS)
 
 include $(wildcard $(BUILD)/$(program).d)
