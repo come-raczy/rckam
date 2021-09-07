@@ -15,6 +15,7 @@
 #ifndef DEVICES_IMAGE_LOADER_HPP
 #define DEVICES_IMAGE_LOADER_HPP
 
+#include <thread>
 #include <boost/asio.hpp>
 
 #include "models/ImagePreview.hpp"
@@ -44,9 +45,13 @@ private:
   models::ImagePreview *imagePreview_;
   boost::asio::io_service ioService_;
   boost::asio::ip::tcp::socket socket_;
+  std::thread thread_;
+  std::exception_ptr threadException_;
   bool stop_;
-  bool done_;
+  // read the images from the socket and load them into the viewer
   void read();
+  // wrap the read method to propagate exceptions is any
+  void readWrapper();
 };
 
 } // namespace devices

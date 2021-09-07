@@ -29,27 +29,38 @@ ImageLoader::ImageLoader(models::ImagePreview *imagePreview, const std::string i
 : imagePreview_(imagePreview)
 , ioService_()
 , socket_(ioService_)
+, thread_()
+, threadException_(nullptr)
 , stop_(false)
-, done_(false)
 {
   using namespace boost::asio;
   using ip::tcp;
   socket_.connect( tcp::endpoint( ip::make_address(ipAddress), dataPort));
   // start the thread to read the data
+  thread_ = std::thread(&ImageLoader::read, this);
 }
 
 ImageLoader::~ImageLoader()
 {
-  while (!done_)
+  stop();
+  thread_.join();
+}
+
+void ImageLoader::readWrapper()
+{
+  try
   {
-    std::this_thread::sleep_for (std::chrono::milliseconds(100));
+    read();
+  }
+  catch(...)
+  {
+    threadException_ = std::current_exception();
   }
 }
 
 void ImageLoader::read()
 {
   using common::RckamException;
-  done_ = false;
   while(!stop_)
   {
     boost::asio::streambuf receive_buffer;
@@ -84,7 +95,6 @@ void ImageLoader::read()
     imagePreview_->loadFromData(boost::asio::buffer_cast<const uchar *>(receive_buffer.data()), byteCount, "JPG");
     receive_buffer.consume(byteCount);
   }
-  done_ = true;
 }
 
 } // namespace devices
