@@ -19,5 +19,7 @@ include ("${CMAKE_SOURCE_DIR}/cmake/macros.cmake")
 set (rckam_CXX_LIBRARY_CMAKE "${CMAKE_SOURCE_DIR}/cmake/cxxLibrary.cmake")
 set (rckam_CXX_EXECUTABLE_CMAKE "${CMAKE_SOURCE_DIR}/cmake/cxxExecutable.cmake")
 
+set(CMAKE_CXX_STANDARD 17)
+
 add_subdirectory(src)
 

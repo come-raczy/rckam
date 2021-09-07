@@ -19,16 +19,14 @@ namespace rckam
 namespace models
 {
 
-ImagePreview::ImagePreview(QQuickItem *parent)
-: image_("/mnt/c/Users/comer/Downloads/no_image.png")
+ImagePreview::ImagePreview(QQuickItem *)
+: image_(":/images/no_image.png")
 {
-  // Note: can't find the image even when registered in qml.qrc
-  // this->current_image = QImage(":/images/no_image.png");
 }
 
-Q_INVOKABLE void ImagePreview::setImage(const QImage &image)
+Q_INVOKABLE void ImagePreview::loadFromData(const uchar *data, int len, const char *format)
 {
-  image_ = image;
+  image_.loadFromData(data, len, format);
   update();
 }
 

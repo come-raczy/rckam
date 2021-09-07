@@ -36,16 +36,16 @@ namespace options
 class RckamOptions : public common::Options
 {
 public:
-    RckamOptions();
-
-    common::Options::Action parse(int argc, char *argv[]);
-
+  RckamOptions();
+  common::Options::Action parse(int argc, char *argv[]);
+  std::string ipAddress;
+  unsigned dataPort = 12345;
 private:
-    std::string usagePrefix() const {return "rckam -r <reference> -b <base calls> [optional arguments]";}
-    void postProcess(boost::program_options::variables_map &vm);
+  std::string usagePrefix() const {return "rckam -r <reference> -b <base calls> [optional arguments]";}
+  void postProcess(boost::program_options::variables_map &vm);
 
 public:
-    std::string description;
+  std::string description;
 };
 
 } // namespace options

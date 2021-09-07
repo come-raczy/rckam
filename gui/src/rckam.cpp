@@ -99,7 +99,7 @@ void rckamGui(const rckam::options::RckamOptions &options)
   }
 
   // start the background imageLoader
-  rckam::devices::ImageLoader imageLoader(imagePreview);
+  rckam::devices::ImageLoader imageLoader(imagePreview, options.ipAddress, options.dataPort);
   const auto ret = app.exec();
   if (0!= ret)
   {

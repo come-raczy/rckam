@@ -54,10 +54,10 @@ namespace models
 class ImagePreview : public QQuickPaintedItem
 {
 Q_OBJECT
-    Q_PROPERTY(QImage image READ image WRITE setImage NOTIFY imageChanged)
+    Q_PROPERTY(QImage image READ image NOTIFY imageChanged)
 public:
     ImagePreview(QQuickItem *parent = nullptr);
-    Q_INVOKABLE void setImage(const QImage &image);
+    Q_INVOKABLE void loadFromData(const uchar *data, int len, const char *format = "JPG");
     void paint(QPainter *painter);
     QImage image() const;
 signals:

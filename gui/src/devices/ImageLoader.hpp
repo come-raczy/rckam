@@ -15,17 +15,7 @@
 #ifndef DEVICES_IMAGE_LOADER_HPP
 #define DEVICES_IMAGE_LOADER_HPP
 
-//#include <QGuiApplication>
-//#include <QQmlApplicationEngine>
-//#include <QQmlEngine>
-//#include <QQmlContext>
-//#include <QQmlComponent>
-//#include <QIcon>
-//#include <QDebug>
-//#include <QQuickPaintedItem>
-//#include <QQuickItem>
-//#include <QPainter>
-//#include <QImage>
+#include <boost/asio.hpp>
 
 #include "models/ImagePreview.hpp"
 
@@ -47,8 +37,16 @@ namespace devices
 class ImageLoader
 {
 public:
-    ImageLoader(models::ImagePreview *imagePreview /* IP address and port */);
+  ImageLoader(models::ImagePreview *imagePreview, const std::string ipAddress, unsigned port);
+  ~ImageLoader();
+  void stop() {stop_ = true;}
 private:
+  models::ImagePreview *imagePreview_;
+  boost::asio::io_service ioService_;
+  boost::asio::ip::tcp::socket socket_;
+  bool stop_;
+  bool done_;
+  void read();
 };
 
 } // namespace devices
