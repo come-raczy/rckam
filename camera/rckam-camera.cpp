@@ -20,6 +20,7 @@
 #include "Gphoto2Context.hpp"
 #include "CameraList.hpp"
 #include "CameraController.hpp"
+#include "Rckam.hpp"
 
 int main(int argc, char *argv[])
 {
@@ -54,9 +55,9 @@ int main(int argc, char *argv[])
       }
       const unsigned selected = 0;
       const auto model = cameraList.model(selected);
-      const auto port = cameraList.port(selected);
+      const auto usbPort = cameraList.port(selected);
       //rckam::camera::Camera camera(cameraList.name(selected), cameraList.value(selected), context);
-      rckam::camera::CameraController controller(model, port, context);
+      rckam::camera::CameraController controller(model, usbPort, rckam::common::dataPort, context);
       controller.run();
     }
     else
