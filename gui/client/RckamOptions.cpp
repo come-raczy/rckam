@@ -12,11 +12,11 @@
  ** <https://fsf.org/>
  **/
 
-#include "options/RckamOptions.hpp"
+#include "client/RckamOptions.hpp"
 
 namespace rckam
 {
-namespace options
+namespace client
 {
 
 namespace bpo = boost::program_options;
@@ -26,7 +26,7 @@ using boost::format;
 
 RckamOptions::RckamOptions()
 {
-  //unnamedOptions_.add_options()
+  //unnamedOptions_.add_client()
   //    ("some-option"   , bpo::value<int>(&someValue)->default_value(someValue),
   //        "some documentation")
   //        ;

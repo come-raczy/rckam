@@ -1,4 +1,5 @@
 /**
+ **
  ** rckam: a Qt remote control for digital cameras
  **
  ** Copyright (C) <year>  <name of author>
@@ -15,33 +16,39 @@
  **
  ** You should have received a copy of the GNU Affero General Public License
  ** along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ **
  **/
 
-#ifndef MODELS_CAMERA_HPP
-#define MODELS_CAMERA_HPP
+#ifndef CLIENT_RCKAM_CLIENT_HPP
+#define CLIENT_RCKAM_CLIENT_HPP
 
-//#include <QGuiApplication>
-//#include <QQmlApplicationEngine>
-//#include <QQmlEngine>
-//#include <QQmlContext>
-//#include <QQmlComponent>
-//#include <QIcon>
-//#include <QDebug>
-#include <QObject>
+#include <string>
+#include <boost/filesystem.hpp>
+#include <boost/regex.hpp>
+
+#include "common/Program.hpp"
 
 namespace rckam
 {
-namespace models
+namespace client
 {
 
-class Camera : public QObject
+class RckamOptions : public common::Options
 {
-    Q_OBJECT
-public slots:
-    void click();
+public:
+  RckamOptions();
+  common::Options::Action parse(int argc, char *argv[]);
+  std::string ipAddress;
+  unsigned dataPort = 12345;
+private:
+  std::string usagePrefix() const {return "rckam -r <reference> -b <base calls> [optional arguments]";}
+  void postProcess(boost::program_options::variables_map &vm);
+
+public:
+  std::string description;
 };
 
-} // namespace models
+} // namespace client
 } // namespace rckam
 
-#endif // #ifndef MODELS_CAMERA_HPP
+#endif // #ifndef CLIENT_RCKAM_CLIENT_HPP

@@ -12,7 +12,7 @@
  ** <https://fsf.org/>
  **/
 
-#include "devices/ImageLoader.hpp"
+#include "client/ImageLoader.hpp"
 
 #include <thread>
 #include <chrono>
@@ -22,10 +22,10 @@
 
 namespace rckam
 {
-namespace devices
+namespace client
 {
 
-ImageLoader::ImageLoader(models::ImagePreview *imagePreview, const std::string ipAddress, const unsigned dataPort /*, const communicationPort */)
+ImageLoader::ImageLoader(client::ImagePreview *imagePreview, const std::string ipAddress, const unsigned dataPort /*, const communicationPort */)
 : imagePreview_(imagePreview)
 , ioService_()
 , socket_(ioService_)
@@ -97,6 +97,6 @@ void ImageLoader::read()
   }
 }
 
-} // namespace devices
+} // namespace client
 } // namespace rckam
 

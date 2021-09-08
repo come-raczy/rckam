@@ -25,21 +25,19 @@
 
 #include "common/Debug.hpp"
 #include "common/Exceptions.hpp"
-#include "options/RckamOptions.hpp"
-#include "models/ImagePreview.hpp"
-#include "devices/ImageLoader.hpp"
-//#include "models/Camera.hpp"
-//#include "models/UsbCameraList.hpp"
-//#include "devices/UsbPorts.hpp"
+#include "client/RckamOptions.hpp"
+#include "client/ImagePreview.hpp"
+#include "client/ImageLoader.hpp"
+//#include "client/Camera.hpp"
 
-void rckamGui(const rckam::options::RckamOptions &options);
+void rckamGui(const rckam::client::RckamOptions &options);
 
 int main(int argc, char *argv[])
 {
   rckam::common::run(rckamGui, argc, argv);
 }
 
-void rckamGui(const rckam::options::RckamOptions &options)
+void rckamGui(const rckam::client::RckamOptions &options)
 {
   std::cerr << "rckamGui: " << options.description << std::endl;
   //rckam::devices::UsbPorts usbPorts;
@@ -71,7 +69,7 @@ void rckamGui(const rckam::options::RckamOptions &options)
 //  std::cerr << c.product.toUtf8().constData() << std::endl;
 //}
 
-  qmlRegisterType<rckam::models::ImagePreview>("myextension", 1, 0, "ImagePreview");
+  qmlRegisterType<rckam::client::ImagePreview>("myextension", 1, 0, "ImagePreview");
   //QQmlContext *context = engine.rootContext();
   //context->setContextProperty("camera", &camera);
   //context->setContextProperty("usbCameraList", &usbCameraList);
@@ -92,14 +90,14 @@ void rckamGui(const rckam::options::RckamOptions &options)
     BOOST_THROW_EXCEPTION(rckam::common::QmlException("ERROR: failed to find rckam Application Window in QML Application Engine"));
   }
   auto rckamApplicationWindow = engine.rootObjects()[index];
-  auto imagePreview = rckamApplicationWindow->findChild< rckam::models::ImagePreview *>("imagePreview");
+  auto imagePreview = rckamApplicationWindow->findChild< rckam::client::ImagePreview *>("imagePreview");
   if (nullptr == imagePreview)
   {
     BOOST_THROW_EXCEPTION(rckam::common::QmlException("ERROR: failed to find image preview in QML Application Engine"));
   }
 
   // start the background imageLoader
-  rckam::devices::ImageLoader imageLoader(imagePreview, options.ipAddress, options.dataPort);
+  rckam::client::ImageLoader imageLoader(imagePreview, options.ipAddress, options.dataPort);
   const auto ret = app.exec();
   if (0!= ret)
   {

@@ -18,11 +18,11 @@
 #include <thread>
 #include <boost/asio.hpp>
 
-#include "models/ImagePreview.hpp"
+#include "client/ImagePreview.hpp"
 
 namespace rckam
 {
-namespace devices
+namespace client
 {
 
 /**
@@ -38,11 +38,11 @@ namespace devices
 class ImageLoader
 {
 public:
-  ImageLoader(models::ImagePreview *imagePreview, const std::string ipAddress, unsigned port);
+  ImageLoader(client::ImagePreview *imagePreview, const std::string ipAddress, unsigned port);
   ~ImageLoader();
   void stop() {stop_ = true;}
 private:
-  models::ImagePreview *imagePreview_;
+  client::ImagePreview *imagePreview_;
   boost::asio::io_service ioService_;
   boost::asio::ip::tcp::socket socket_;
   std::thread thread_;
@@ -54,7 +54,7 @@ private:
   void readWrapper();
 };
 
-} // namespace devices
+} // namespace client
 } // namespace rckam
 
 #endif // #ifndef DEVICES_IMAGE_LOADER_HPP
