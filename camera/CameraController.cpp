@@ -51,6 +51,7 @@ void CameraController::run()
     CameraFile cameraFile;
     common::LockedOstream(std::cerr) << "capturing " << std::setw(3) << "..." << std::endl;
     const size_t byteCount = camera_.capturePreview(cameraFile);
+    common::LockedOstream(std::cerr) << "sending " << std::setw(3) << "..." << std::endl;
     // const std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
     // common::LockedOstream(std::cerr) << "capture completed. Received " << size << " bytes" << std::endl;
     // auto in_time_t = std::chrono::system_clock::to_time_t(now);
