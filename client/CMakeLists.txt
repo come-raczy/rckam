@@ -15,13 +15,14 @@ set (rckam_BOOST_COMPONENTS date_time filesystem program_options system)
 cmake_policy(SET CMP0046 NEW)
 cmake_policy(SET CMP0071 NEW)
 
-include ("${CMAKE_SOURCE_DIR}/cmake/macros.cmake")
-set (rckam_CXX_LIBRARY_CMAKE "${CMAKE_SOURCE_DIR}/cmake/cxxLibrary.cmake")
-set (rckam_CXX_EXECUTABLE_CMAKE "${CMAKE_SOURCE_DIR}/cmake/cxxExecutable.cmake")
+get_filename_component(rckam_ROOT_DIR ${CMAKE_SOURCE_DIR} DIRECTORY)
+include ("${rckam_ROOT_DIR}/cmake/macros.cmake")
+set (rckam_CXX_LIBRARY_CMAKE "${rckam_ROOT_DIR}/cmake/cxxLibrary.cmake")
+set (rckam_CXX_EXECUTABLE_CMAKE "${rckam_ROOT_DIR}/cmake/cxxExecutable.cmake")
 
 set(CMAKE_CXX_STANDARD 17)
 
-set(rckam_COMMON_SOURCE_DIR "${CMAKE_SOURCE_DIR}/../common")
+set(rckam_COMMON_SOURCE_DIR "${rckam_ROOT_DIR}/common")
 set(rckam_COMMON_BUILD_DIR "${CMAKE_CURRENT_BINARY_DIR}/common")
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -37,13 +38,6 @@ include_directories (${rckam_COMMON_BUILD_DIR})
 include_directories (${CMAKE_CURRENT_SOURCE_DIR})
 
 add_definitions(-Wall -pedantic -Wextra)
-
-set (rckam_ALL_LIBRARIES
-  common
-  client
-  #"${rckam_COMMON_SOURCE_DIR}"
-  #"${CMAKE_CURRENT_SOURCE_DIR}/client"
-)
 
 if (rckam_FORCE_STATIC_LINK)
   message(STATUS "All libraries will be statically linked")
@@ -74,7 +68,9 @@ rckam_find_library(PTHREAD pthread.h pthread)
 
 
 find_package(Qt5 REQUIRED Core Widgets Qml Quick Gui Xml Svg)
+find_package(Qt5Widgets REQUIRED)
 find_package(Qt5QuickCompiler)
+find_package(Qt5QuickControls2 REQUIRED)
 
 qtquick_compiler_add_resources(qml_QRC qml/qml.qrc)
 
@@ -82,12 +78,14 @@ set (rckam_AVAILABLE_LIBRARIES "")
 set (rckam_ALL_LIBRARY_DIRS "")
 add_custom_target(build_libs)
 set (PREVIOUS_TARGET build_libs)
-foreach (rckam_LIB_DIR ${rckam_ALL_LIBRARIES})
-  if ("common" STREQUAL "${rckam_LIB_DIR}")
+
+foreach (rckam_LIB_DIR "common" "client") #${rckam_ALL_LIBRARIES})
+  if (rckam_LIB_DIR STREQUAL "common")
     add_subdirectory("${rckam_COMMON_SOURCE_DIR}" "${rckam_COMMON_BUILD_DIR}")
-  else ()
-    add_subdirectory("${rckam_LIB_DIR}")
-  endif ()
+  elseif (rckam_LIB_DIR STREQUAL "client")
+   include(${rckam_CXX_LIBRARY_CMAKE})
+   target_link_libraries (rckam_client Qt5::Widgets Qt5::Quick Qt5::Core Qt5::Gui Qt5::QuickControls2) 
+  endif()
   add_dependencies(rckam_${rckam_LIB_DIR} ${PREVIOUS_TARGET})
   set(rckam_AVAILABLE_LIBRARIES rckam_${rckam_LIB_DIR} ${rckam_AVAILABLE_LIBRARIES} )
   set (PREVIOUS_TARGET rckam_${rckam_LIB_DIR})
