@@ -12,8 +12,8 @@
  ** <https://fsf.org/>
  **/
 
-#ifndef MODELS_IMAGE_PREVIEW_HPP
-#define MODELS_IMAGE_PREVIEW_HPP
+#ifndef CLIENT_IMAGE_PREVIEW_HPP
+#define CLIENT_IMAGE_PREVIEW_HPP
 
 //#include <QGuiApplication>
 //#include <QQmlApplicationEngine>
@@ -30,7 +30,7 @@
 
 namespace rckam
 {
-namespace models
+namespace client
 {
 
 /**
@@ -66,7 +66,7 @@ private:
     QImage image_;
 };
 
-} // namespace models
+} // namespace client
 } // namespace rckam
 
-#endif // #ifndef MODELS_IMAGE_PREVIEW_HPP
+#endif // #ifndef CLIENT_IMAGE_PREVIEW_HPP

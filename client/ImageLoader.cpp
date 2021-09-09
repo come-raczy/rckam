@@ -12,7 +12,7 @@
  ** <https://fsf.org/>
  **/
 
-#include "devices/ImageLoader.hpp"
+#include "client/ImageLoader.hpp"
 
 #include <thread>
 #include <chrono>
@@ -22,10 +22,10 @@
 
 namespace rckam
 {
-namespace devices
+namespace client
 {
 
-ImageLoader::ImageLoader(models::ImagePreview *imagePreview, const std::string ipAddress, const unsigned dataPort /*, const communicationPort */)
+ImageLoader::ImageLoader(client::ImagePreview *imagePreview, const std::string ipAddress, const unsigned dataPort /*, const communicationPort */)
 : imagePreview_(imagePreview)
 , ioService_()
 , socket_(ioService_)
@@ -35,7 +35,14 @@ ImageLoader::ImageLoader(models::ImagePreview *imagePreview, const std::string i
 {
   using namespace boost::asio;
   using ip::tcp;
-  socket_.connect( tcp::endpoint( ip::make_address(ipAddress), dataPort));
+  using common::RckamException;
+  boost::system::error_code error;
+  socket_.connect( tcp::endpoint( ip::make_address(ipAddress), dataPort), error);
+  if (error)
+  {
+    auto message = boost::format("ERROR: failed to connect to data socket '%s:%i' (check that server is ready): %i: %s") % ipAddress % dataPort % error.value() % error.message();
+    BOOST_THROW_EXCEPTION(RckamException(message.str()));
+  }
   // start the thread to read the data
   thread_ = std::thread(&ImageLoader::read, this);
 }
@@ -97,6 +104,6 @@ void ImageLoader::read()
   }
 }
 
-} // namespace devices
+} // namespace client
 } // namespace rckam
 

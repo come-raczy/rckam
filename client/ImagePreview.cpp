@@ -12,11 +12,11 @@
  ** <https://fsf.org/>
  **/
 
-#include "models/ImagePreview.hpp"
+#include "client/ImagePreview.hpp"
 
 namespace rckam
 {
-namespace models
+namespace client
 {
 
 ImagePreview::ImagePreview(QQuickItem *)
@@ -48,6 +48,6 @@ QImage ImagePreview::image() const
   return image_;
 }
 
-} // namespace models
+} // namespace client
 } // namespace rckam
 

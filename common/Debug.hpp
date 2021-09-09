@@ -23,6 +23,8 @@ namespace rckam
 namespace common
 {
 
+#define RCKAM_THREAD_CERR  common::LockedOstream(std::cerr, true)
+
 /**
  ** \brief wrap a mutex around a stream for clean multithreaded output
  **
@@ -32,7 +34,7 @@ namespace common
 class LockedOstream
 {
 public:
-  LockedOstream(::std::ostream &os, const bool timeStamp = 1);
+  LockedOstream(::std::ostream &os, const bool timeStamp = true);
   ~LockedOstream() { mutex_.unlock(); }
 
   template <class T>

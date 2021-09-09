@@ -9,8 +9,8 @@
 ################################################################################
 include_directories (${rckam_CXX_CONFIG_H_DIR})
 
-get_filename_component(rckam_CURRENT_DIR_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME)
-message (STATUS "Adding the c++    library subdirectory: ${rckam_CURRENT_DIR_NAME}")
+get_filename_component(rckam_LIB_DIR ${CMAKE_CURRENT_SOURCE_DIR} NAME)
+message (STATUS "Adding the c++    library subdirectory: ${rckam_LIB_DIR}")
 
 ##
 ## Some generators (VS) require all targets to be unique across the project.
@@ -21,10 +21,12 @@ message (STATUS "Adding the c++    library subdirectory: ${rckam_CURRENT_DIR_NAM
 string(REGEX REPLACE ${CMAKE_SOURCE_DIR}/c[+][+]/ "" TMP1 ${CMAKE_CURRENT_SOURCE_DIR}/)
 string(REGEX REPLACE "/" "_" rckam_UNIQUE_PREFIX ${TMP1})
 
+message(STATUS "   ====  rckam_UNIQUE_PREFIX: ${rckam_UNIQUE_PREFIX}")
 ##
-## build the library
+## build the library. C++ library files must start with a Capital letter
 ##
-file(GLOB_RECURSE rckam_LIBRARY_SOURCES_WITH_CPPUNIT *.cpp *.c)
+file(GLOB_RECURSE rckam_LIBRARY_SOURCES_WITH_CPPUNIT [A-Z]*.cpp *.c)
+message(STATUS "   ====  rckam_LIBRARY_SOURCES_WITH_CPPUNIT: ${rckam_LIBRARY_SOURCES_WITH_CPPUNIT}")
 
 foreach (SOURCE_FILE ${rckam_LIBRARY_SOURCES_WITH_CPPUNIT})
     string(REGEX MATCH "cppunit" CPPUNIT_MATCH ${SOURCE_FILE} )
