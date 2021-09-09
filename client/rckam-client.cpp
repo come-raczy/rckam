@@ -39,6 +39,7 @@ int main(int argc, char *argv[])
 
 void rckamGui(const rckam::client::RckamOptions &options)
 {
+
   std::cerr << "rckamGui: " << options.description << std::endl;
   //rckam::devices::UsbPorts usbPorts;
   //const auto usbDevices = usbPorts.listDevices();
@@ -77,7 +78,9 @@ void rckamGui(const rckam::client::RckamOptions &options)
   std::cerr << "Loading rckam.qml" << std::endl;
   engine.load(QUrl(QStringLiteral("qrc:/rckam.qml")));
   if (engine.rootObjects().isEmpty())
+  {
     BOOST_THROW_EXCEPTION(rckam::common::RckamException(-1, "engine.rootObjects().isEmpty()"));
+  }
 
   // Select the root object named rckamApplicationWindow
   int index = 0;
@@ -98,10 +101,11 @@ void rckamGui(const rckam::client::RckamOptions &options)
 
   // start the background imageLoader
   rckam::client::ImageLoader imageLoader(imagePreview, options.ipAddress, options.dataPort);
+  imageLoader.start();
   const auto ret = app.exec();
   if (0!= ret)
   {
-    BOOST_THROW_EXCEPTION(rckam::common::RckamException(ret, "QApplication"));
+      BOOST_THROW_EXCEPTION(rckam::common::RckamException(ret, "QApplication"));
   }
 }
 

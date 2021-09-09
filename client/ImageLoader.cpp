@@ -19,6 +19,7 @@
 #include <boost/format.hpp>
 
 #include "common/Exceptions.hpp"
+#include "common/Debug.hpp"
 
 namespace rckam
 {
@@ -29,28 +30,46 @@ ImageLoader::ImageLoader(client::ImagePreview *imagePreview, const std::string i
 : imagePreview_(imagePreview)
 , ioService_()
 , socket_(ioService_)
+, ipAddress_(ipAddress)
+, dataPort_(dataPort)
 , thread_()
 , threadException_(nullptr)
 , stop_(false)
 {
+}
+
+void ImageLoader::start()
+{
+  RCKAM_THREAD_CERR << "INFO: starting image loader..." << std::endl;
+  threadException_ = nullptr;
   using namespace boost::asio;
   using ip::tcp;
   using common::RckamException;
   boost::system::error_code error;
-  socket_.connect( tcp::endpoint( ip::make_address(ipAddress), dataPort), error);
+  RCKAM_THREAD_CERR << "INFO: connecting image loader to " <<  ipAddress_ << ":" << dataPort_ << "..." << std::endl;
+  socket_.connect( tcp::endpoint( ip::make_address(ipAddress_), dataPort_), error);
   if (error)
   {
-    auto message = boost::format("ERROR: failed to connect to data socket '%s:%i' (check that server is ready): %i: %s") % ipAddress % dataPort % error.value() % error.message();
+    auto message = boost::format("ERROR: failed to connect to data socket '%s:%d' (check that server is ready): %d: %s") % ipAddress_ % dataPort_ % error.value() % error.message();
     BOOST_THROW_EXCEPTION(RckamException(message.str()));
   }
-  // start the thread to read the data
-  thread_ = std::thread(&ImageLoader::read, this);
+  else
+  {
+    RCKAM_THREAD_CERR << "INFO: connecting image loader to " <<  ipAddress_ << ":" << dataPort_ << "... done" << std::endl;
+    // start the thread to read the data
+    RCKAM_THREAD_CERR << "INFO: starting thread..." << std::endl;
+    thread_ = std::thread(&ImageLoader::readWrapper, this);
+    RCKAM_THREAD_CERR << "INFO: starting image loader... done" << std::endl;
+  }
 }
 
 ImageLoader::~ImageLoader()
 {
   stop();
-  thread_.join();
+  if (thread_.joinable())
+  {
+    thread_.join();
+  }
 }
 
 void ImageLoader::readWrapper()
@@ -61,6 +80,7 @@ void ImageLoader::readWrapper()
   }
   catch(...)
   {
+    RCKAM_THREAD_CERR << "WARNING: Image loader failed to read images: threadException_->message()" << std::endl;
     threadException_ = std::current_exception();
   }
 }
