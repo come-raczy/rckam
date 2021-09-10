@@ -20,7 +20,7 @@
 #include <chrono>
 #include <iomanip>
 
-#include "Debug.hpp"
+#include "common/Debug.hpp"
 #include "Exceptions.hpp"
 
 namespace rckam
@@ -46,12 +46,12 @@ void CameraController::run()
 {
   // wait for the connection
   acceptor_.accept(socket_);
-  for (unsigned int i = 0; 100 > i; ++i)
+  for (unsigned int i = 0; 1000 > i; ++i)
   {
     CameraFile cameraFile;
-    common::LockedOstream(std::cerr) << "capturing " << std::setw(3) << "..." << std::endl;
+    common::LockedOstream(std::cerr) << "capturing " << std::setw(4) << i << "..." << std::endl;
     const size_t byteCount = camera_.capturePreview(cameraFile);
-    common::LockedOstream(std::cerr) << "sending " << std::setw(3) << "..." << std::endl;
+    common::LockedOstream(std::cerr) << "sending " << std::setw(4) << i << "..." << std::endl;
     // const std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
     // common::LockedOstream(std::cerr) << "capture completed. Received " << size << " bytes" << std::endl;
     // auto in_time_t = std::chrono::system_clock::to_time_t(now);

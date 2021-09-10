@@ -20,7 +20,7 @@
 #include "Gphoto2Context.hpp"
 #include "CameraList.hpp"
 #include "CameraController.hpp"
-#include "Rckam.hpp"
+#include "common/Rckam.hpp"
 
 int main(int argc, char *argv[])
 {
