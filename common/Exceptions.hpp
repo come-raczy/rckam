@@ -78,6 +78,15 @@ public:
 };
 
 /**
+ * \brief Exception thrown when there are problems with the IO operations
+ */
+class GtkmmException: public std::ios_base::failure, public ExceptionData
+{
+public:
+    GtkmmException(int errorNumber, const std::string &message);
+};
+
+/**
  * \brief Exception thrown when there is insufficient resources to perform an operation. For example
  *        if the adjusting the soft ulimit fails due to a set hard limit
  */

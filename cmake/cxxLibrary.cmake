@@ -21,12 +21,10 @@ message (STATUS "Adding the c++    library subdirectory: ${rckam_LIB_DIR}")
 string(REGEX REPLACE ${CMAKE_SOURCE_DIR}/c[+][+]/ "" TMP1 ${CMAKE_CURRENT_SOURCE_DIR}/)
 string(REGEX REPLACE "/" "_" rckam_UNIQUE_PREFIX ${TMP1})
 
-message(STATUS "   ====  rckam_UNIQUE_PREFIX: ${rckam_UNIQUE_PREFIX}")
 ##
 ## build the library. C++ library files must start with a Capital letter
 ##
 file(GLOB_RECURSE rckam_LIBRARY_SOURCES_WITH_CPPUNIT [A-Z]*.cpp *.c)
-message(STATUS "   ====  rckam_LIBRARY_SOURCES_WITH_CPPUNIT: ${rckam_LIBRARY_SOURCES_WITH_CPPUNIT}")
 
 foreach (SOURCE_FILE ${rckam_LIBRARY_SOURCES_WITH_CPPUNIT})
     string(REGEX MATCH "cppunit" CPPUNIT_MATCH ${SOURCE_FILE} )

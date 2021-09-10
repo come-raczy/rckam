@@ -12,6 +12,10 @@
  ** <https://fsf.org/>
  **/
 
+#include <cassert>
+#include <gtkmm/application.h>
+#include <gtkmm/builder.h>
+
 #include "common/Debug.hpp"
 #include "common/Exceptions.hpp"
 #include "client-gtkmm/RckamOptions.hpp"
@@ -25,6 +29,21 @@ int main(int argc, char *argv[])
 
 void rckamGui(const rckam::client::RckamOptions &options)
 {
-  RCKAM_THREAD_CERR << "INFO: rckamGui: " << options.description << std::endl;
+  RCKAM_THREAD_CERR << "INFO: rckam-client " << options.description << std::endl;
+  const Glib::ustring APPLICATION_IDENTIFIER("rckam.client-gtkmm.rckam-client");
+  assert(Gio::Application::id_is_valid(APPLICATION_IDENTIFIER));
+  auto app = Gtk::Application::create(APPLICATION_IDENTIFIER);
+  RCKAM_THREAD_CERR << "INFO: loading rckam.glade" << std::endl;
+  auto refBuilder = Gtk::Builder::create();
+  try
+  {
+    //refBuilder->add_from_string(ui_info);
+    refBuilder->add_from_resource("/resources/rckam.glade");
+  }
+  catch(const Glib::Error& ex)
+  {
+    RCKAM_THREAD_CERR << "ERROR: Building menus and toolbar failed: " <<  ex.what() << std::endl;
+    BOOST_THROW_EXCEPTION(rckam::common::GtkmmException(ex.code(), ex.what()));
+  }
 }
 

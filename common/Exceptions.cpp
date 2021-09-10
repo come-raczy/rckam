@@ -40,6 +40,12 @@ IoException::IoException(int errorNumber, const std::string &message)
 {
 }
 
+GtkmmException::GtkmmException(int errorNumber, const std::string &message)
+    : std::ios_base::failure(message)
+    , ExceptionData(errorNumber, message)
+{
+}
+
 ResourceException::ResourceException(int errorNumber, const std::string &message)
     : ExceptionData(errorNumber, message)
 {

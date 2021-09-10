@@ -56,6 +56,14 @@ endif (rckam_FORCE_STATIC_LINK)
 find_package(Boost 1.71 REQUIRED COMPONENTS ${rckam_BOOST_COMPONENTS})
 rckam_find_library(ZLIB zlib.h z)
 rckam_find_library(PTHREAD pthread.h pthread)
+
+# Initialize gtkmm directories and libraries directly from pkgconfig
+find_package(PkgConfig)
+pkg_check_modules(GTKMM gtkmm-3.0) # look into FindPkgConfig.cmake, it contains documentation
+link_directories( ${GTKMM_LIBRARY_DIRS}  )
+include_directories( ${GTKMM_INCLUDE_DIRS}  )
+find_program(GLIB_COMPILE_RESOURCES NAMES glib-compile-resources REQUIRED)
+
 #rckam_find_library(GPHOTO2 gphoto2/gphoto2.h gphoto2)
 #rckam_find_library(UDEV libudev.h udev)
 
@@ -100,10 +108,15 @@ endforeach (rckam_LIB_DIR)
 #    target_link_libraries (${EXECUTABLE_NAME} ${rckam_AVAILABLE_LIBRARIES} Qt5::Qml Qt5::Quick ${Boost_LIBRARIES} ${PTHREAD_LIBRARY} ${GPHOTO2_LIBRARY} ${LIBUSB_1_LIBRARY} ${UDEV_LIBRARY})
 #endforeach (SOURCE_FILE)
 
+add_subdirectory("resources")
+
 set(rckam_CLIENT_SOURCE "rckam-client.cpp")
 get_filename_component (EXECUTABLE_NAME ${rckam_CLIENT_SOURCE} NAME_WE)
-add_executable(${EXECUTABLE_NAME} ${SOURCE} ${rckam_CLIENT_SOURCE} ${qml_QRC})
+message(STATUS "add_executable(${EXECUTABLE_NAME} ${SOURCE} ${rckam_CLIENT_SOURCE} ${GRESOURCE_BUNDLE_SOURCE})")
+add_executable(${EXECUTABLE_NAME} ${SOURCE} ${rckam_CLIENT_SOURCE} ${GRESOURCE_BUNDLE_SOURCE})
 #target_link_libraries (${EXECUTABLE_NAME} ${rckam_AVAILABLE_LIBRARIES} Qt5::Qml Qt5::Quick ${Boost_LIBRARIES} ${PTHREAD_LIBRARY} ${GPHOTO2_LIBRARY} ${LIBUSB_1_LIBRARY} ${UDEV_LIBRARY})
-target_link_libraries (${EXECUTABLE_NAME} ${rckam_AVAILABLE_LIBRARIES} ${Boost_LIBRARIES} ${PTHREAD_LIBRARY} )
+message(STATUS GRESOURCE_BUNDLE_OBJECT = ${GRESOURCE_BUNDLE_OBJECT})
+message(STATUS "target_link_libraries (${EXECUTABLE_NAME} ${GRESOURCE_BUNDLE_OBJECT} ${rckam_AVAILABLE_LIBRARIES} ${Boost_LIBRARIES} ${PTHREAD_LIBRARY} ${GTKMM_LIBRARIES})")
+target_link_libraries (${EXECUTABLE_NAME} ${GRESOURCE_BUNDLE_OBJECT} ${rckam_AVAILABLE_LIBRARIES} ${Boost_LIBRARIES} ${PTHREAD_LIBRARY} ${GTKMM_LIBRARIES})
 
 
