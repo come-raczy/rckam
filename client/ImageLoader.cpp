@@ -17,6 +17,8 @@
 #include <thread>
 #include <chrono>
 #include <boost/format.hpp>
+#include <filesystem>
+#include <fstream>
 
 #include "common/Exceptions.hpp"
 #include "common/Debug.hpp"
@@ -78,9 +80,14 @@ void ImageLoader::readWrapper()
   {
     read();
   }
+  catch(std::exception &e)
+  {
+    RCKAM_THREAD_CERR << "WARNING: Image loader failed to read images: " << e.what() << std::endl;
+    threadException_ = std::current_exception();
+  }
   catch(...)
   {
-    RCKAM_THREAD_CERR << "WARNING: Image loader failed to read images: threadException_->message()" << std::endl;
+    RCKAM_THREAD_CERR << "WARNING: Image loader failed to read images: unknown type of exception" << std::endl;
     threadException_ = std::current_exception();
   }
 }
@@ -88,6 +95,29 @@ void ImageLoader::readWrapper()
 void ImageLoader::read()
 {
   using common::RckamException;
+  unsigned i = 0;
+
+
+//stop_ = true;
+
+std::filesystem::path filePath = "/tmp/preview0000.jpg";
+const size_t fileSize = file_size(filePath);
+std::vector<char> data(fileSize);
+std::ifstream is(filePath);
+if (!is.read(data.data(), fileSize))
+{
+  std::cerr << "failed to read  " << filePath << std::endl;
+}
+std::cerr << "read " << is.gcount() << " expected " << fileSize << std::endl;
+//std::vector<uchar> udata(fileSize);
+//for (unsigned int i = 0; data.size() > i; ++i)
+//{
+//  udata[i] = static_cast<uchar>(data[i]);
+//}
+//image_.loadFromData(data.data(), fileSize, "JPG");
+//imagePreview_->loadFromData(reinterpret_cast<const uchar *>(data.data()), fileSize, "JPG");
+
+
   while(!stop_)
   {
     boost::asio::streambuf receive_buffer;
@@ -104,6 +134,7 @@ void ImageLoader::read()
       auto message = boost::format("ERROR: failed to read %i bytes for byte count from data socket: read only %i") % sizeof(size_t) % count1;
       BOOST_THROW_EXCEPTION(RckamException(message.str()));
     }
+    RCKAM_THREAD_CERR << "INFO: " << std::setw(4) << i << ": count1 = " << count1 <<std::endl;
     const auto byteCount = *(boost::asio::buffer_cast<const size_t*>(receive_buffer.data()));
     receive_buffer.consume(sizeof(size_t));
     // read the image
@@ -118,9 +149,35 @@ void ImageLoader::read()
       auto message = boost::format("ERROR: failed to read %i bytes for image from data socket: read only %i") % byteCount % count2;
       BOOST_THROW_EXCEPTION(RckamException(message.str()));
     }
+    RCKAM_THREAD_CERR << "INFO: " << std::setw(4) << i << ": count2 = " << count2 <<std::endl;
+    std::filesystem::path filePath((boost::format("/tmp/preview%04d.jpg") % i).str());
+    std::ofstream os(filePath);
+    os.write(boost::asio::buffer_cast<const char *>(receive_buffer.data()), byteCount);
+
+//std::filesystem::path filePath = "/tmp/preview0000.jpg";
+//std::filesystem::path filePath = "/tmp/preview0000.jpg";
+//const size_t fileSize = file_size(filePath);
+//std::vector<char> data(fileSize);
+//std::ifstream is(filePath);
+//if (!is.read(data.data(), fileSize))
+//{
+//  std::cerr << "failed to read  " << filePath << std::endl;
+//}
+//std::cerr << "read " << is.gcount() << " expected " << fileSize << std::endl;
+//std::vector<uchar> udata(fileSize);
+//for (unsigned int i = 0; data.size() > i; ++i)
+//{
+//  udata[i] = static_cast<uchar>(data[i]);
+//}
+//image_.loadFromData(data.data(), fileSize, "JPG");
+imagePreview_->loadFromData(reinterpret_cast<const uchar *>(data.data()), fileSize, "JPG");
+std::this_thread::sleep_for (std::chrono::seconds(3));
+//update();
+
     // display the image
-    imagePreview_->loadFromData(boost::asio::buffer_cast<const uchar *>(receive_buffer.data()), byteCount, "JPG");
+//    imagePreview_->loadFromData(boost::asio::buffer_cast<const uchar *>(receive_buffer.data()), byteCount, "JPG");
     receive_buffer.consume(byteCount);
+    ++i;
   }
 }
 

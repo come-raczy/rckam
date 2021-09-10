@@ -15,6 +15,13 @@
 #include <iostream>
 #include <boost/format.hpp>
 
+#include <filesystem>
+#include <fstream>
+#include <vector>
+#include <iostream>
+#include <boost/asio.hpp>
+
+
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlEngine>
@@ -98,6 +105,27 @@ void rckamGui(const rckam::client::RckamOptions &options)
   {
     BOOST_THROW_EXCEPTION(rckam::common::QmlException("ERROR: failed to find image preview in QML Application Engine"));
   }
+
+
+#if 0
+std::filesystem::path filePath = "/tmp/preview0000.jpg";
+const size_t fileSize = file_size(filePath);
+std::vector<char> data(fileSize);
+std::ifstream is(filePath);
+if (!is.read(data.data(), fileSize))
+{
+  std::cerr << "failed to read  " << filePath << std::endl;
+}
+std::cerr << "read " << is.gcount() << " expected " << fileSize << std::endl;
+//std::vector<uchar> udata(fileSize);
+//for (unsigned int i = 0; data.size() > i; ++i)
+//{
+//  udata[i] = static_cast<uchar>(data[i]);
+//}
+//image_.loadFromData(data.data(), fileSize, "JPG");
+imagePreview->loadFromData(reinterpret_cast<const uchar *>(data.data()), fileSize, "JPG");
+//update();
+#endif
 
   // start the background imageLoader
   rckam::client::ImageLoader imageLoader(imagePreview, options.ipAddress, options.dataPort);
