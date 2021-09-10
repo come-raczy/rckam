@@ -15,12 +15,19 @@
 #include <cassert>
 #include <gtkmm/application.h>
 #include <gtkmm/builder.h>
+#include <gtkmm/dialog.h>
 
 #include "common/Debug.hpp"
 #include "common/Exceptions.hpp"
 #include "client-gtkmm/RckamOptions.hpp"
 
+Gtk::Dialog *pDialog = nullptr;
 void rckamGui(const rckam::client::RckamOptions &options);
+static void on_button_clicked()
+{
+  if(pDialog)
+    pDialog->hide(); //hide() will cause main::run() to end.
+}
 
 int main(int argc, char *argv[])
 {
@@ -45,5 +52,18 @@ void rckamGui(const rckam::client::RckamOptions &options)
     RCKAM_THREAD_CERR << "ERROR: Building menus and toolbar failed: " <<  ex.what() << std::endl;
     BOOST_THROW_EXCEPTION(rckam::common::GtkmmException(ex.code(), ex.what()));
   }
+  refBuilder->get_widget("DialogBasic", pDialog);
+  if(pDialog)
+  {
+    //Get the GtkBuilder-instantiated Button, and connect a signal handler:
+    Gtk::Button* pButton = nullptr;
+    refBuilder->get_widget("quit_button", pButton);
+    if(pButton)
+    {
+      pButton->signal_clicked().connect( sigc::ptr_fun(on_button_clicked) );
+    }
+    app->run(*pDialog);
+  }
+  delete pDialog;
 }
 
