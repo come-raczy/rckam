@@ -15,6 +15,7 @@
 #ifndef DEVICES_IMAGE_LOADER_HPP
 #define DEVICES_IMAGE_LOADER_HPP
 
+#include <string>
 #include <thread>
 #include <boost/asio.hpp>
 
@@ -41,10 +42,13 @@ public:
   ImageLoader(client::ImagePreview *imagePreview, const std::string ipAddress, unsigned port);
   ~ImageLoader();
   void stop() {stop_ = true;}
+  void start();
 private:
   client::ImagePreview *imagePreview_;
   boost::asio::io_service ioService_;
   boost::asio::ip::tcp::socket socket_;
+  std::string ipAddress_;
+  unsigned dataPort_;
   std::thread thread_;
   std::exception_ptr threadException_;
   bool stop_;

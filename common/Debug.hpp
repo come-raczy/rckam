@@ -23,7 +23,7 @@ namespace rckam
 namespace common
 {
 
-#define RCKAM_THREAD_CERR  common::LockedOstream(std::cerr, true)
+#define RCKAM_THREAD_CERR  rckam::common::LockedOstream(std::cerr, true)
 
 /**
  ** \brief wrap a mutex around a stream for clean multithreaded output
