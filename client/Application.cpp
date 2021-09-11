@@ -12,7 +12,7 @@
  ** <https://fsf.org/>
  **/
 
-#include "client/RckamApplication.hpp"
+#include "client/Application.hpp"
 
 #include "common/Debug.hpp"
 
@@ -21,32 +21,32 @@ namespace rckam
 namespace client
 {
 
-RckamApplication::RckamApplication()
+Application::Application()
 : Gtk::Application("rckam.client.application", Gio::APPLICATION_HANDLES_OPEN)
 {
 }
 
-Glib::RefPtr<RckamApplication> RckamApplication::create()
+Glib::RefPtr<Application> Application::create()
 {
-  return Glib::RefPtr<rckam::client::RckamApplication>(new RckamApplication());
+  return Glib::RefPtr<rckam::client::Application>(new Application());
 }
 
-int RckamApplication::run(Gtk::Window &window)
+int Application::run(Gtk::Window &window)
 {
   return  Gtk::Application::run(window);
 }
 
-void RckamApplication::on_activate()
+void Application::on_activate()
 {
   // The application has been started, so let's show a window.
   //auto rckamMainWindow = createMainWindow();
   //rckamMainWindow->present();
 }
 
-void RckamApplication::on_open(const Gio::Application::type_vec_files& files, const Glib::ustring& hint)
+void Application::on_open(const Gio::Application::type_vec_files& files, const Glib::ustring& hint)
 {
   // The application has been asked to open some files, so let's open a new view for each one.
-  RCKAM_THREAD_CERR << "INFO: RckamApplication::on_open(...)" << std::endl;
+  RCKAM_THREAD_CERR << "INFO: Application::on_open(...)" << std::endl;
 #if 0
   Window* appwindow = nullptr;
   auto windows = get_windows();
@@ -63,7 +63,7 @@ void RckamApplication::on_open(const Gio::Application::type_vec_files& files, co
 #endif
 }
 
-//RckamMainWindow* RckamApplication::createMainWindow()
+//RckamMainWindow* Application::createMainWindow()
 //{
   //auto rckamMainWindow = new RckamMainWindow();
   // make sure the application runs as long as this window is open
@@ -74,12 +74,12 @@ void RckamApplication::on_open(const Gio::Application::type_vec_files& files, co
   // otherwise equivalent to Gtk::Application::add_window().
   //add_window(*rckamMainWindow);
   // Delete the window when it is hidden.
-  //rckamMainWindow->signal_hide().connect(sigc::bind<Gtk::Window*>(sigc::mem_fun(*this,&RckamApplication::on_hide_window), rckamMainWindow));
+  //rckamMainWindow->signal_hide().connect(sigc::bind<Gtk::Window*>(sigc::mem_fun(*this,&Application::on_hide_window), rckamMainWindow));
   //return rckamMainWindow;
   //return nullptr;
 //}
 
-void RckamApplication::on_hide_window(Gtk::Window* window)
+void Application::on_hide_window(Gtk::Window* window)
 {
   delete window;
 }

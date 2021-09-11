@@ -12,8 +12,8 @@
  ** <https://fsf.org/>
  **/
 
-#ifndef RCKAM_CLIENT_RCKAM_MAIN_WINDOW_HPP
-#define RCKAM_CLIENT_RCKAM_MAIN_WINDOW_HPP
+#ifndef RCKAM_CLIENT_MAIN_WINDOW_HPP
+#define RCKAM_CLIENT_MAIN_WINDOW_HPP
 
 #include <gtkmm/applicationwindow.h>
 #include <gtkmm/builder.h>
@@ -25,11 +25,10 @@ namespace rckam
 namespace client
 {
 
-class RckamMainWindow: public Gtk::ApplicationWindow
+class MainWindow: public Gtk::ApplicationWindow
 {
 public:
-  //RckamMainWindow(Gtk::ApplicationWindow *baseObject, Glib::RefPtr<Gtk::Builder>& builder);
-  RckamMainWindow(GtkApplicationWindow *baseObject, const Glib::RefPtr<Gtk::Builder> &builder);
+  MainWindow(GtkApplicationWindow *baseObject, const Glib::RefPtr<Gtk::Builder> &builder);
   void open_file_view(const Glib::RefPtr<Gio::File>& file);
 private:
   Glib::RefPtr<Gtk::Builder> builder_; 
@@ -38,5 +37,5 @@ private:
 } // namespace client
 } // namespace rckam
 
-#endif // #ifndef RCKAM_CLIENT_RCKAM_MAIN_WINDOW_HPP
+#endif // #ifndef RCKAM_CLIENT_MAIN_WINDOW_HPP
 

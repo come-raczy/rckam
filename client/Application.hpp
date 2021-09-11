@@ -12,36 +12,34 @@
  ** <https://fsf.org/>
  **/
 
-#ifndef RCKAM_CLIENT_RCKAM_APPLICATION_HPP
-#define RCKAM_CLIENT_RCKAM_APPLICATION_HPP
+#ifndef RCKAM_CLIENT_APPLICATION_HPP
+#define RCKAM_CLIENT_APPLICATION_HPP
 
 #include <gtkmm/application.h>
-
-#include "client/RckamMainWindow.hpp"
+#include <gtkmm/window.h>
 
 namespace rckam
 {
 namespace client
 {
 
-class RckamApplication: public Gtk::Application
+class Application: public Gtk::Application
 {
 protected:
-  RckamApplication();
+  Application();
 public:
-  static Glib::RefPtr<RckamApplication> create();
+  static Glib::RefPtr<Application> create();
   int run(Gtk::Window &window);
 protected:
   // Override default signal handlers:
   void on_activate() override;
   void on_open(const Gio::Application::type_vec_files& files, const Glib::ustring& hint) override;
 private:
-//  RckamMainWindow* createMainWindow();
   void on_hide_window(Gtk::Window* window);
 };
 
 } // namespace client
 } // namespace rckam
 
-#endif // #ifndef RCKAM_CLIENT_RCKAM_APPLICATION_HPP
+#endif // #ifndef RCKAM_CLIENT_APPLICATION_HPP
 

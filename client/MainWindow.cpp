@@ -12,20 +12,20 @@
  ** <https://fsf.org/>
  **/
 
-#include "client/RckamMainWindow.hpp"
+#include "client/MainWindow.hpp"
 
 namespace rckam
 {
 namespace client
 {
 
-RckamMainWindow::RckamMainWindow(GtkApplicationWindow *baseObject, const Glib::RefPtr<Gtk::Builder> &builder)
+MainWindow::MainWindow(GtkApplicationWindow *baseObject, const Glib::RefPtr<Gtk::Builder> &builder)
 : Gtk::ApplicationWindow(baseObject)
 , builder_(builder)
 {
 }
 
-void RckamMainWindow::open_file_view(const Glib::RefPtr<Gio::File>& /* file */)
+void MainWindow::open_file_view(const Glib::RefPtr<Gio::File>& /* file */)
 {
 }
 
