@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+  <!-- gresource prefix="/glade" -->
+  <gresource prefix="/resources">
+    <file preprocess="xml-stripblanks">rckam.glade</file>
+    <file>icons/feather/camera.svg</file>
+    <file>icons/feather/camera-off.svg</file>
+    <file>icons/feather/eye.svg</file>
+    <file>icons/feather/eye-off.svg</file>
+    <file>icons/feather/settings.svg</file>
+    <file>icons/feather/stop-circle.svg</file>
+    <file>images/no_image.png</file>
+  </gresource>
+</gresources>
