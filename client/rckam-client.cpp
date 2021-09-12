@@ -62,6 +62,10 @@ void rckamClient(const rckam::client::RckamOptions &options)
     RCKAM_THREAD_CERR << "ERROR: failed to find imagePreview" << std::endl;
     BOOST_THROW_EXCEPTION(rckam::common::GtkmmException(ENOENT, "failed to find imagePreview"));
   }
+  // TODO: start the image loader thread
+  // signals must be connected manually with gtkmm and preferably in the constructors of the relevant classes.
+  // Alternately, compile with -rdynamic and use "gtk_builder_connect_signals(builder->gobj(), NULL)" but
+  // this restricts the callbacks to functions only - no class methods
   try
   {
     application->run(*mainWindow);

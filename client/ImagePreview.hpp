@@ -12,31 +12,32 @@
  ** <https://fsf.org/>
  **/
 
-#ifndef RCKAM_CLIENT_MAIN_WINDOW_HPP
-#define RCKAM_CLIENT_MAIN_WINDOW_HPP
+#ifndef RCKAM_CLIENT_IMAGE_PREVIEW_HPP
+#define RCKAM_CLIENT_IMAGE_PREVIEW_HPP
 
-#include <gtkmm/applicationwindow.h>
+#include <gtkmm/image.h>
 #include <gtkmm/builder.h>
 #include <glibmm/refptr.h>
 #include <giomm/file.h>
+#include <gdkmm/pixbufloader.h>
 
 namespace rckam
 {
 namespace client
 {
 
-class MainWindow: public Gtk::ApplicationWindow
+class ImagePreview: public Gtk::Image
 {
 public:
-  MainWindow(GtkApplicationWindow *baseObject, const Glib::RefPtr<Gtk::Builder> &builder);
+  ImagePreview(GtkImage *baseObject, const Glib::RefPtr<Gtk::Builder> &builder);
   void open_file_view(const Glib::RefPtr<Gio::File>& file);
+  void set(const char *data, size_t size);
 private:
-  //Glib::RefPtr<Gtk::Builder> builder_; 
-  void on_quitMenuItem_activate() {hide();}
+  Glib::RefPtr<Gdk::PixbufLoader> pixbufLoader_;
 };
 
 } // namespace client
 } // namespace rckam
 
-#endif // #ifndef RCKAM_CLIENT_MAIN_WINDOW_HPP
+#endif // #ifndef RCKAM_CLIENT_IMAGE_PREVIEW_HPP
 
