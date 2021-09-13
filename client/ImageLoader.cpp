@@ -133,6 +133,10 @@ void ImageLoader::start()
     RCKAM_THREAD_CERR << "INFO: starting threads..." << std::endl;
     std::unique_lock lock(mutex_);
     stop_ = false;
+    for (auto &bufferEmpty: buffersEmpty_)
+    {
+      bufferEmpty = true;
+    }
     readPreviewsThreadException_ = nullptr;
     readPreviewsThread_ = std::thread(&ImageLoader::readPreviewsWrapper, this);
     setPreviewsThreadException_ = nullptr;
@@ -168,6 +172,10 @@ void ImageLoader::readPreviews()
     RCKAM_THREAD_CERR << "INFO: acquiring empty buffer      " << std::setw(5) << i << "..." << std::endl;
     std::unique_lock<std::mutex> lock(mutexes_[index]);
     conditionVariables_[index].wait(lock, [&] {return buffersEmpty_[index] || stop_;});
+    if (stop_)
+    {
+      break;
+    }
     auto &buffer = buffers_[index];
     RCKAM_THREAD_CERR << "INFO: reading preview from socket " << std::setw(5) << i << "..." << std::endl;
     readPreview(buffer);

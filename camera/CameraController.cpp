@@ -47,27 +47,46 @@ void CameraController::run()
   // wait for the connection
   acceptor_.accept(socket_);
   // create a thread to send the data
-  stopDataTransfer_ = false;
+  stopPreview_ = false;
   transferDataException_ = nullptr;
   std::thread dataTransferThread = std::thread(&CameraController::transferDataWrapper, this);;
-  unsigned index = 0;
   for (auto &cameraFileEmpty: cameraFilesEmpty_)
   {
     cameraFileEmpty = true;
   }
-  for (unsigned int i = 0; 1000 > i; ++i)
+  unsigned index = 0;
+  unsigned i = 0;
+  while (!stopPreview_)
   {
     std::unique_lock<std::mutex> lock(mutexes_[index]);
-    conditionVariables_[index].wait(lock, [&] {return cameraFilesEmpty_[index];});
+    conditionVariables_[index].wait(lock, [&] {return cameraFilesEmpty_[index] || stopPreview_;});
+    if (stopPreview_)
+    {
+      break;
+    }
     CameraFile &cameraFile = cameraFiles_[index];
     common::LockedOstream(std::cerr) << "capturing " << std::setw(4) << i << "..." << std::endl;
+    const std::chrono::time_point<std::chrono::system_clock> captureBegin = std::chrono::system_clock::now();
     const size_t byteCount = camera_.capturePreview(cameraFile);
+    const std::chrono::time_point<std::chrono::system_clock> captureEnd = std::chrono::system_clock::now();
+    if (0 == (i % 100))
+    {
+      auto in_time_t = std::chrono::system_clock::to_time_t(captureBegin);
+      const auto beginMs = std::chrono::duration_cast<std::chrono::milliseconds>(captureBegin.time_since_epoch()).count() % 1000;
+      const auto durationMs = std::chrono::duration_cast<std::chrono::milliseconds>(captureEnd.time_since_epoch()).count() 
+                            - std::chrono::duration_cast<std::chrono::milliseconds>(captureBegin.time_since_epoch()).count();
+      const auto timeString = std::put_time(std::localtime(&in_time_t), "%X");
+      auto fileName = boost::format("/tmp/preview-%05i-%s.%03i-%05i.jpg") % i % timeString % beginMs % durationMs;
+      std::ofstream os(fileName.str());
+      os << cameraFile;
+    }
     common::LockedOstream(std::cerr) << "capturing " << std::setw(4) << i << "... done (" << byteCount << " bytes)" << std::endl;
     cameraFilesEmpty_[index] = false;
     conditionVariables_[index].notify_one();
     index = (index + 1) % 2;
+    ++i;
   }
-  stopDataTransfer_ = true;
+  stopPreview_ = true;
   for (auto &conditionVariable: conditionVariables_)
   {
     conditionVariable.notify_all();
@@ -100,11 +119,11 @@ void CameraController::transferData()
 {
   unsigned index = 0;
   unsigned i = 0;
-  while (!stopDataTransfer_)
+  while (!stopPreview_)
   {
     std::unique_lock<std::mutex> lock(mutexes_[index]);
-    conditionVariables_[index].wait(lock, [&]{return (false == cameraFilesEmpty_[index]) || stopDataTransfer_;});
-    if (stopDataTransfer_)
+    conditionVariables_[index].wait(lock, [&]{return (false == cameraFilesEmpty_[index]) || stopPreview_;});
+    if (stopPreview_)
     {
       break;
     }

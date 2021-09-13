@@ -37,6 +37,7 @@ public:
   ~CameraController();
   /// operate the camera
   void run();
+  void stopPreview();
 private:
   /// the underlying gphoto2 camera
   Camera camera_;
@@ -51,7 +52,7 @@ private:
   std::array<std::condition_variable, 2> conditionVariables_;
   std::array<CameraFile, 2> cameraFiles_;
   std::array<bool, 2> cameraFilesEmpty_;
-  bool stopDataTransfer_;
+  bool stopPreview_;
   std::exception_ptr transferDataException_;
   void transferData();
   void transferDataWrapper();

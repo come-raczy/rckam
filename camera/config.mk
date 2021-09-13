@@ -176,7 +176,7 @@ CPPFLAGS += -Wfatal-errors -g -O2 -ftree-vectorize -finline-functions -fpredicti
 endif # if DEBUG
 
 LDFLAGS+= -lz -lstdc++ -lrt -lgomp -lpthread
-LDFLAGS+= -lpigpio
+#LDFLAGS+= -lpigpio
 
 ifneq (,$(GTEST_INCLUDEDIR))
 GTEST_CPPFLAGS+= -I $(GTEST_INCLUDEDIR)
