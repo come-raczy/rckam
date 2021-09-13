@@ -20,10 +20,8 @@ $(BUILD_COMMON)/%.o: $(RCKAM_COMMON_DIR)/%.cpp $(BUILD_COMMON)/%.d $(BUILD_COMMO
 	$(CXX) $(DEPFLAGS) $(CPPFLAGS) $(CXXFLAGS) -c -o $@ $<
 	$(POSTCOMPILE)
 
-$(warning $(RCKAM_COMMON_LIB): $(all_common_objects))
-
 $(RCKAM_COMMON_LIB): $(all_common_objects)
-	$(AR) -crs $@ $<
+	$(AR) -crs $@ $^
 
 
 include $(foreach lib, $(all_common_objects), $(lib:%.o=%.d))
