@@ -30,6 +30,8 @@ Application::Application(const RckamOptions &options)
 : Gtk::Application("rckam.client.application", Gio::APPLICATION_HANDLES_OPEN)
 , mainWindow_(nullptr)
 , imagePreview_(nullptr)
+, ipAddress_(options.ipAddress)
+, dataPort_(options.dataPort)
 {
   auto builder = Gtk::Builder::create();
   try

@@ -32,8 +32,8 @@ RckamOptions::RckamOptions()
   //        ;
 
   namedOptions_.add_options()
-//    ("ip-address,i", bpo::value<std::string>(&ipAddress)->required(),
-//              "ip address of the server (v4)")
+    ("ip-address,i", bpo::value<std::string>(&ipAddress)->required(),
+              "ip address of the server (v4)")
     ("data-port,d", bpo::value<unsigned>(&dataPort)->default_value(dataPort),
               "the port to use for data transfer")
     ;
