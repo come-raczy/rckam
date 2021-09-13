@@ -4,6 +4,7 @@
    ============
 
 - libgphoto2-dev (>=5.26)
+- libboost-dev (>=1.67.0.1)
 
 ## Overview
    ========
