@@ -33,6 +33,7 @@ ImageLoader::ImageLoader(ImagePreview &imagePreview, const std::string &ipAddres
 , socket_(ioService_)
 , ipAddress_(ipAddress)
 , dataPort_(dataPort)
+, remoteEndpoint_(boost::asio::ip::make_address_v4(ipAddress), dataPort)
 , readPreviewsThread_()
 , setPreviewsThread_()
 , readPreviewsThreadException_(nullptr)
@@ -57,11 +58,16 @@ void ImageLoader::readPreview(std::vector<char> &data)
   }
   i = (i + 1) % 5;
 #endif
+  constexpr boost::asio::socket_base::message_flags FLAGS = 0;
   using common::RckamException;
   std::array<char, sizeof(size_t)> byteCountBuffer;
   boost::system::error_code error;
   // read the size of the image in bytes
-  const size_t count1 = boost::asio::read(socket_, boost::asio::buffer(byteCountBuffer), boost::asio::transfer_exactly(sizeof(size_t)), error);
+  // TCP
+  // const size_t count1 = boost::asio::read(socket_, boost::asio::buffer(byteCountBuffer), boost::asio::transfer_exactly(sizeof(size_t)), error);
+  // UDP
+  boost::asio::ip::udp::endpoint senderEndpoint;
+  const size_t count1 = socket_.receive_from(boost::asio::buffer(byteCountBuffer), senderEndpoint, FLAGS, error);
   if (error)
   {
     auto message = boost::format("ERROR: failed to read byte count from data socket: %i: %s") % error.value() % error.message();
@@ -76,7 +82,10 @@ void ImageLoader::readPreview(std::vector<char> &data)
   RCKAM_THREAD_CERR << "INFO: cout1 = " << std::setw(4) << count1 << " byteCount = " <<  std::setw(8) << byteCount << std::endl;
   data.resize(byteCount);
   // read the image
-  const size_t count2 = boost::asio::read(socket_, boost::asio::buffer(data), boost::asio::transfer_exactly(byteCount), error);
+  // TCP
+  // const size_t count2 = boost::asio::read(socket_, boost::asio::buffer(data), boost::asio::transfer_exactly(byteCount), error);
+  // UDP
+  const size_t count2 = socket_.receive_from(boost::asio::buffer(data), senderEndpoint, FLAGS, error);
   if (error)
   {
     auto message = boost::format("ERROR: failed to read image data from data socket: %i: %s") % error.value() % error.message();
@@ -114,17 +123,22 @@ void ImageLoader::stop()
 
 void ImageLoader::start()
 {
+  constexpr boost::asio::socket_base::message_flags FLAGS = 0;
   assert(!isRunning());
   RCKAM_THREAD_CERR << "INFO: starting image loader..." << std::endl;
   using namespace boost::asio;
-  using ip::tcp;
+  using ip::udp;
   using common::RckamException;
   boost::system::error_code error;
   RCKAM_THREAD_CERR << "INFO: connecting image loader to " <<  ipAddress_ << ":" << dataPort_ << "..." << std::endl;
-  socket_.connect( tcp::endpoint( ip::make_address(ipAddress_), dataPort_), error);
+  // TCP
+  //socket_.connect( udp::endpoint( ip::make_address(ipAddress_), dataPort_), error);
+  std::array<char, 1> sendBuffer{0};
+  socket_.send_to(boost::asio::buffer(sendBuffer), remoteEndpoint_, FLAGS, error);
   if (error)
   {
-    auto message = boost::format("ERROR: failed to connect to data socket '%s:%d' (check that server is ready): %d: %s") % ipAddress_ % dataPort_ % error.value() % error.message();
+    //auto message = boost::format("ERROR: failed to connect to data socket '%s:%d' (check that server is ready): %d: %s") % ipAddress_ % dataPort_ % error.value() % error.message();
+    auto message = boost::format("ERROR: failed to send to remote socket '%s:%d' (check that server is ready): %d: %s") % ipAddress_ % dataPort_ % error.value() % error.message();
     BOOST_THROW_EXCEPTION(RckamException(message.str()));
   }
   else
@@ -222,6 +236,8 @@ void ImageLoader::setPreviews()
     RCKAM_THREAD_CERR << "INFO: setting preview in GUI " << std::setw(5) << i << "..." << std::endl;
     imagePreview_->set(buffer.data(), buffer.size());
     RCKAM_THREAD_CERR << "INFO: setting preview in GUI " << std::setw(5) << i << "... done" << std::endl;
+    buffersEmpty_[index] = true;
+    conditionVariables_[index].notify_one();
     index = (index + 1) % 2;
     ++i;
   }

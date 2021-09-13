@@ -23,7 +23,7 @@
 #include "Gphoto2Context.hpp"
 #include "Camera.hpp"
 #include "DataSocket.hpp"
-#include "CommunicationSocket.hpp"
+//#include "CommunicationSocket.hpp"
 
 namespace rckam
 {
@@ -43,11 +43,16 @@ private:
   Camera camera_;
   /// the socket to transmit data (image previews)
   //DataSocket dataSocket_;
-  boost::asio::io_service io_service_;
-  boost::asio::ip::tcp::acceptor acceptor_;
-  boost::asio::ip::tcp::socket socket_;
+  // io service for TCP sockets
+  //boost::asio::io_service io_service_;
+  // io context for UDP sockets
+  boost::asio::io_context io_context_;
+  /// acceptor for TCP connections
+  //boost::asio::ip::tcp::acceptor acceptor_;
+  boost::asio::ip::udp::socket socket_;
+  boost::asio::ip::udp::endpoint remoteEndpoint_;
   /// the socket for communication and synchronization
-  CommunicationSocket communicationSocket_;
+  //CommunicationSocket communicationSocket_;
   std::array<std::mutex, 2> mutexes_;
   std::array<std::condition_variable, 2> conditionVariables_;
   std::array<CameraFile, 2> cameraFiles_;

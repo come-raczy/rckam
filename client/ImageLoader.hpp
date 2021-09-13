@@ -51,9 +51,10 @@ public:
 private:
   ImagePreview *imagePreview_;
   boost::asio::io_service ioService_;
-  boost::asio::ip::tcp::socket socket_;
+  boost::asio::ip::udp::socket socket_;
   std::string ipAddress_;
   unsigned dataPort_;
+  boost::asio::ip::udp::endpoint remoteEndpoint_;
   std::thread readPreviewsThread_;
   std::thread setPreviewsThread_;
   std::exception_ptr readPreviewsThreadException_;

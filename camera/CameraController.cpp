@@ -31,10 +31,13 @@ namespace camera
 CameraController::CameraController(const char * const model, const char * const usbPort, const unsigned dataPort, Gphoto2Context &context)
 : camera_(model, usbPort, context)
 //, dataSocket_()
-, io_service_()
-, acceptor_(io_service_, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), dataPort))
-, socket_(io_service_)
-, communicationSocket_()
+//, io_service_()
+//, acceptor_(io_service_, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), dataPort))
+//, socket_(io_service_)
+//, resolver_(io_context_)
+, io_context_()
+, socket_(io_context_, boost::asio::ip::udp::endpoint(boost::asio::ip::udp::v4(), dataPort))
+//, communicationSocket_()
 {
 }
 
@@ -44,8 +47,19 @@ CameraController::~CameraController()
 
 void CameraController::run()
 {
-  // wait for the connection
-  acceptor_.accept(socket_);
+  // wait for the connection - TCP
+  // acceptor_.accept(socket_);
+  // wait for the connection - UDP
+  std::array<char, 1> receiveBuffer;
+  boost::system::error_code error;
+  constexpr boost::asio::socket_base::message_flags FLAGS = 0;
+  socket_.receive_from(boost::asio::buffer(receiveBuffer), remoteEndpoint_, FLAGS, error);
+  if (error)
+  {
+    RCKAM_THREAD_CERR << "ERROR: socket failed to receive from remote: " << error.value() << ": " << error.message() << std::endl;
+    BOOST_THROW_EXCEPTION(RckamException(std::string("socket failed to receive from remote: ") +  error.message()));
+  }
+  RCKAM_THREAD_CERR << "INFO: sending image previews to " << remoteEndpoint_.address() << ":" << remoteEndpoint_.port() << std::endl;
   // create a thread to send the data
   stopPreview_ = false;
   transferDataException_ = nullptr;
@@ -65,7 +79,7 @@ void CameraController::run()
       break;
     }
     CameraFile &cameraFile = cameraFiles_[index];
-    common::LockedOstream(std::cerr) << "capturing " << std::setw(4) << i << "..." << std::endl;
+    RCKAM_THREAD_CERR << "INFO: capturing " << std::setw(4) << i << "..." << std::endl;
     const std::chrono::time_point<std::chrono::system_clock> captureBegin = std::chrono::system_clock::now();
     const size_t byteCount = camera_.capturePreview(cameraFile);
     const std::chrono::time_point<std::chrono::system_clock> captureEnd = std::chrono::system_clock::now();
@@ -80,7 +94,7 @@ void CameraController::run()
       std::ofstream os(fileName.str());
       os << cameraFile;
     }
-    common::LockedOstream(std::cerr) << "capturing " << std::setw(4) << i << "... done (" << byteCount << " bytes)" << std::endl;
+    RCKAM_THREAD_CERR << "INFO: capturing " << std::setw(4) << i << "... done (" << byteCount << " bytes)" << std::endl;
     cameraFilesEmpty_[index] = false;
     conditionVariables_[index].notify_one();
     index = (index + 1) % 2;
@@ -117,6 +131,7 @@ void CameraController::transferDataWrapper()
 
 void CameraController::transferData()
 {
+  constexpr boost::asio::socket_base::message_flags FLAGS = 0;
   unsigned index = 0;
   unsigned i = 0;
   while (!stopPreview_)
@@ -131,7 +146,7 @@ void CameraController::transferData()
     const auto dataAndSize = cameraFile.getDataAndSize();
     const auto data = std::get<0>(dataAndSize);
     const auto byteCount = std::get<1>(dataAndSize);
-    common::LockedOstream(std::cerr) << "sending " << std::setw(4) << i << "... (" << byteCount << " bytes)" << std::endl;
+    RCKAM_THREAD_CERR << "INFO: sending " << std::setw(4) << i << "... (" << byteCount << " bytes)" << std::endl;
     // const std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
     // common::LockedOstream(std::cerr) << "capture completed. Received " << size << " bytes" << std::endl;
     // auto in_time_t = std::chrono::system_clock::to_time_t(now);
@@ -141,7 +156,10 @@ void CameraController::transferData()
     // std::ofstream os(fileName.str());
     // os << cameraFile;
     boost::system::error_code error;
-    const auto count1 = boost::asio::write( socket_, boost::asio::buffer(&byteCount, sizeof(size_t)), boost::asio::transfer_exactly(sizeof(size_t)), error);
+    // TCP
+    //const auto count1 = boost::asio::write( socket_, boost::asio::buffer(&byteCount, sizeof(size_t)), boost::asio::transfer_exactly(sizeof(size_t)), error);
+    // UDP
+    const auto count1 = socket_.send_to(boost::asio::buffer(&byteCount, sizeof(size_t)), remoteEndpoint_, FLAGS, error); 
     if (error)
     {
       auto message = boost::format("ERROR: failed to send byte count to data socket: %i: %s") % error.value() % error.message();
@@ -152,7 +170,10 @@ void CameraController::transferData()
       auto message = boost::format("ERROR: failed to send %i bytes for byte count to data socket: read only %i") % sizeof(size_t) % count1;
       BOOST_THROW_EXCEPTION(RckamException(message.str()));
     }
-    const auto count2 = boost::asio::write( socket_, boost::asio::buffer(data, byteCount), boost::asio::transfer_exactly(byteCount), error);
+    // TCP
+    //const auto count2 = boost::asio::write( socket_, boost::asio::buffer(data, byteCount), boost::asio::transfer_exactly(byteCount), error);
+    // UDP
+    const auto count2 = socket_.send_to(boost::asio::buffer(data, byteCount), remoteEndpoint_, FLAGS, error); 
     if (error)
     {
       auto message = boost::format("ERROR: failed to send image data to data socket: %i: %s") % error.value() % error.message();
@@ -163,7 +184,7 @@ void CameraController::transferData()
       auto message = boost::format("ERROR: failed to send %i bytes of image data to data socket: read only %i") % byteCount % count2;
       BOOST_THROW_EXCEPTION(RckamException(message.str()));
     }
-    common::LockedOstream(std::cerr) << "sending " << std::setw(4) << i << "... done" << std::endl;
+    RCKAM_THREAD_CERR << "INFO: sending " << std::setw(4) << i << "... done" << std::endl;
     cameraFilesEmpty_[index] = true;
     conditionVariables_[index].notify_one();
     index = (index + 1) % 2;
