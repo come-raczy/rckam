@@ -46,12 +46,73 @@ void CameraController::run()
 {
   // wait for the connection
   acceptor_.accept(socket_);
+  // create a thread to send the data
+  stopDataTransfer_ = false;
+  transferDataException_ = nullptr;
+  std::thread dataTransferThread = std::thread(&CameraController::transferDataWrapper, this);;
+  unsigned index = 0;
+  for (auto &cameraFileEmpty: cameraFilesEmpty_)
+  {
+    cameraFileEmpty = true;
+  }
   for (unsigned int i = 0; 1000 > i; ++i)
   {
-    CameraFile cameraFile;
+    std::unique_lock<std::mutex> lock(mutexes_[index]);
+    conditionVariables_[index].wait(lock, [&] {return cameraFilesEmpty_[index];});
+    CameraFile &cameraFile = cameraFiles_[index];
     common::LockedOstream(std::cerr) << "capturing " << std::setw(4) << i << "..." << std::endl;
     const size_t byteCount = camera_.capturePreview(cameraFile);
-    common::LockedOstream(std::cerr) << "sending " << std::setw(4) << i << "..." << std::endl;
+    common::LockedOstream(std::cerr) << "capturing " << std::setw(4) << i << "... done (" << byteCount << " bytes)" << std::endl;
+    cameraFilesEmpty_[index] = false;
+    conditionVariables_[index].notify_one();
+    index = (index + 1) % 2;
+  }
+  stopDataTransfer_ = true;
+  for (auto &conditionVariable: conditionVariables_)
+  {
+    conditionVariable.notify_all();
+  }
+  if (dataTransferThread.joinable())
+  {
+    dataTransferThread.join();
+  }
+}
+
+void CameraController::transferDataWrapper()
+{
+  try
+  {
+    transferData();
+  }
+  catch(std::exception &e)
+  {
+    RCKAM_THREAD_CERR << "WARNING: data transfer thread terminated: " << e.what() << std::endl;
+    transferDataException_ = std::current_exception();
+  }
+  catch(...)
+  {
+    RCKAM_THREAD_CERR << "WARNING: data transfer thread terminated: unkmown exception" << std::endl;
+    transferDataException_ = std::current_exception();
+  }
+}
+
+void CameraController::transferData()
+{
+  unsigned index = 0;
+  unsigned i = 0;
+  while (!stopDataTransfer_)
+  {
+    std::unique_lock<std::mutex> lock(mutexes_[index]);
+    conditionVariables_[index].wait(lock, [&]{return (false == cameraFilesEmpty_[index]) || stopDataTransfer_;});
+    if (stopDataTransfer_)
+    {
+      break;
+    }
+    CameraFile &cameraFile = cameraFiles_[index];
+    const auto dataAndSize = cameraFile.getDataAndSize();
+    const auto data = std::get<0>(dataAndSize);
+    const auto byteCount = std::get<1>(dataAndSize);
+    common::LockedOstream(std::cerr) << "sending " << std::setw(4) << i << "... (" << byteCount << " bytes)" << std::endl;
     // const std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
     // common::LockedOstream(std::cerr) << "capture completed. Received " << size << " bytes" << std::endl;
     // auto in_time_t = std::chrono::system_clock::to_time_t(now);
@@ -72,8 +133,7 @@ void CameraController::run()
       auto message = boost::format("ERROR: failed to send %i bytes for byte count to data socket: read only %i") % sizeof(size_t) % count1;
       BOOST_THROW_EXCEPTION(RckamException(message.str()));
     }
-    const auto dataAndSize = cameraFile.getDataAndSize();
-    const auto count2 = boost::asio::write( socket_, boost::asio::buffer(std::get<0>(dataAndSize), byteCount), boost::asio::transfer_exactly(byteCount), error);
+    const auto count2 = boost::asio::write( socket_, boost::asio::buffer(data, byteCount), boost::asio::transfer_exactly(byteCount), error);
     if (error)
     {
       auto message = boost::format("ERROR: failed to send image data to data socket: %i: %s") % error.value() % error.message();
@@ -84,6 +144,11 @@ void CameraController::run()
       auto message = boost::format("ERROR: failed to send %i bytes of image data to data socket: read only %i") % byteCount % count2;
       BOOST_THROW_EXCEPTION(RckamException(message.str()));
     }
+    common::LockedOstream(std::cerr) << "sending " << std::setw(4) << i << "... done" << std::endl;
+    cameraFilesEmpty_[index] = true;
+    conditionVariables_[index].notify_one();
+    index = (index + 1) % 2;
+    ++i;
   }
 }
 

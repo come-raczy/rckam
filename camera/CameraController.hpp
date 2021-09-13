@@ -15,6 +15,9 @@
 #ifndef RCKAM_CAMERA_CAMERA_CONTROLLER_HPP
 #define RCKAM_CAMERA_CAMERA_CONTROLLER_HPP
 
+#include <mutex>
+#include <condition_variable>
+#include <array>
 #include <boost/asio.hpp>
 
 #include "Gphoto2Context.hpp"
@@ -44,6 +47,14 @@ private:
   boost::asio::ip::tcp::socket socket_;
   /// the socket for communication and synchronization
   CommunicationSocket communicationSocket_;
+  std::array<std::mutex, 2> mutexes_;
+  std::array<std::condition_variable, 2> conditionVariables_;
+  std::array<CameraFile, 2> cameraFiles_;
+  std::array<bool, 2> cameraFilesEmpty_;
+  bool stopDataTransfer_;
+  std::exception_ptr transferDataException_;
+  void transferData();
+  void transferDataWrapper();
 };
 
 } // namespace camera
