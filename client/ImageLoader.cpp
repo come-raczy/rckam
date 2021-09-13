@@ -33,13 +33,16 @@ ImageLoader::ImageLoader(ImagePreview &imagePreview, const std::string &ipAddres
 , socket_(ioService_)
 , ipAddress_(ipAddress)
 , dataPort_(dataPort)
-, thread_()
-, threadException_(nullptr)
+, readPreviewsThread_()
+, setPreviewsThread_()
+, readPreviewsThreadException_(nullptr)
+, setPreviewsThreadException_(nullptr)
+, buffersEmpty_{true, true}
 , stop_(true)
 {
 }
 
-void ImageLoader::acquireImage(std::vector<char> &data)
+void ImageLoader::readPreview(std::vector<char> &data)
 {
 #if 0
   static unsigned i = 0;
@@ -89,9 +92,23 @@ void ImageLoader::acquireImage(std::vector<char> &data)
 ImageLoader::~ImageLoader()
 {
   stop();
-  if (thread_.joinable())
+  if (readPreviewsThread_.joinable())
   {
-    thread_.join();
+    readPreviewsThread_.join();
+  }
+  if (setPreviewsThread_.joinable())
+  {
+    setPreviewsThread_.join();
+  }
+}
+
+void ImageLoader::stop()
+{
+  std::unique_lock lock(mutex_);
+  stop_ = true;
+  for (auto &c: conditionVariables_)
+  {
+    c.notify_all();
   }
 }
 
@@ -99,7 +116,6 @@ void ImageLoader::start()
 {
   assert(!isRunning());
   RCKAM_THREAD_CERR << "INFO: starting image loader..." << std::endl;
-  threadException_ = nullptr;
   using namespace boost::asio;
   using ip::tcp;
   using common::RckamException;
@@ -114,42 +130,92 @@ void ImageLoader::start()
   else
   {
     RCKAM_THREAD_CERR << "INFO: connecting image loader to " <<  ipAddress_ << ":" << dataPort_ << "... done" << std::endl;
-    // start the thread to read the data
-    RCKAM_THREAD_CERR << "INFO: starting thread..." << std::endl;
-    thread_ = std::thread(&ImageLoader::runWrapper, this);
+    RCKAM_THREAD_CERR << "INFO: starting threads..." << std::endl;
+    std::unique_lock lock(mutex_);
+    stop_ = false;
+    readPreviewsThreadException_ = nullptr;
+    readPreviewsThread_ = std::thread(&ImageLoader::readPreviewsWrapper, this);
+    setPreviewsThreadException_ = nullptr;
+    setPreviewsThread_ = std::thread(&ImageLoader::setPreviewsWrapper, this);
     RCKAM_THREAD_CERR << "INFO: starting image loader... done" << std::endl;
   }
 }
 
-void ImageLoader::runWrapper()
+void ImageLoader::readPreviewsWrapper()
 {
   try
   {
-    run();
+    readPreviews();
   }
   catch(std::exception &e)
   {
     RCKAM_THREAD_CERR << "WARNING: ImageLoader thread terminated: " << e.what() << std::endl;
-    threadException_ = std::current_exception();
+    readPreviewsThreadException_ = std::current_exception();
   }
   catch(...)
   {
     RCKAM_THREAD_CERR << "WARNING: ImageLoader thread terminated: unknown exception" << std::endl;
-    threadException_ = std::current_exception();
+    readPreviewsThreadException_ = std::current_exception();
   }
 }
 
-void ImageLoader::run()
+void ImageLoader::readPreviews()
 {
-  stop_ = false;
-  std::vector<char> data;
+  unsigned i = 0;
+  unsigned index = 0;
   while (!stop_)
   {
-    RCKAM_THREAD_CERR << "INFO: loading new image..." << std::endl;
-    acquireImage(data);
-    imagePreview_->set(data.data(), data.size());
-    RCKAM_THREAD_CERR << "INFO: loading new image... done" << std::endl;
-    //std::this_thread::sleep_for (std::chrono::seconds(1));
+    RCKAM_THREAD_CERR << "INFO: acquiring empty buffer      " << std::setw(5) << i << "..." << std::endl;
+    std::unique_lock<std::mutex> lock(mutexes_[index]);
+    conditionVariables_[index].wait(lock, [&] {return buffersEmpty_[index] || stop_;});
+    auto &buffer = buffers_[index];
+    RCKAM_THREAD_CERR << "INFO: reading preview from socket " << std::setw(5) << i << "..." << std::endl;
+    readPreview(buffer);
+    RCKAM_THREAD_CERR << "INFO: reading preview from socket " << std::setw(5) << i << "... done" << std::endl;
+    buffersEmpty_[index] = false;
+    conditionVariables_[index].notify_one();
+    index = (index + 1) % 2;
+    ++i;
+  }
+}
+
+void ImageLoader::setPreviewsWrapper()
+{
+  try
+  {
+    setPreviews();
+  }
+  catch(std::exception &e)
+  {
+    RCKAM_THREAD_CERR << "WARNING: ImageLoader thset terminated: " << e.what() << std::endl;
+    setPreviewsThreadException_ = std::current_exception();
+  }
+  catch(...)
+  {
+    RCKAM_THREAD_CERR << "WARNING: ImageLoader thset terminated: unknown exception" << std::endl;
+    setPreviewsThreadException_ = std::current_exception();
+  }
+}
+
+void ImageLoader::setPreviews()
+{
+  unsigned i = 0;
+  unsigned index = 0;
+  while (!stop_)
+  {
+    RCKAM_THREAD_CERR << "INFO: acquiring full buffer  " << std::setw(5) << i << "..." << std::endl;
+    std::unique_lock<std::mutex> lock(mutexes_[index]);
+    conditionVariables_[index].wait(lock, [&] {return (false == buffersEmpty_[index]) || stop_;});
+    if (stop_)
+    {
+      break;
+    }
+    auto &buffer = buffers_[index];
+    RCKAM_THREAD_CERR << "INFO: setting preview in GUI " << std::setw(5) << i << "..." << std::endl;
+    imagePreview_->set(buffer.data(), buffer.size());
+    RCKAM_THREAD_CERR << "INFO: setting preview in GUI " << std::setw(5) << i << "... done" << std::endl;
+    index = (index + 1) % 2;
+    ++i;
   }
 }
 
