@@ -34,10 +34,8 @@ int main(int argc, char *argv[])
 
 void rckamClient(const rckam::client::RckamOptions &options)
 {
-  using rckam::client::Application;
-  Glib::RefPtr<Application> application = Application::create();
-  Glib::RefPtr<Gtk::IconTheme> iconTheme = Gtk::IconTheme::get_default();
-  iconTheme->add_resource_path("/resources/icons/feather");
+#if 0
+std::cerr << "builder..." << std::endl;
   auto builder = Gtk::Builder::create();
   try
   {
@@ -48,6 +46,13 @@ void rckamClient(const rckam::client::RckamOptions &options)
     RCKAM_THREAD_CERR << "ERROR: Building menus and toolbar failed: " <<  ex.what() << std::endl;
     BOOST_THROW_EXCEPTION(rckam::common::GtkmmException(ex.code(), ex.what()));
   }
+std::cerr << "builder... done" << std::endl;
+#endif
+  using rckam::client::Application;
+  Glib::RefPtr<Application> application = Application::create(options);
+  Glib::RefPtr<Gtk::IconTheme> iconTheme = Gtk::IconTheme::get_default();
+  iconTheme->add_resource_path("/resources/icons/feather");
+#if 0
   rckam::client::MainWindow *mainWindow = nullptr;
   builder->get_widget_derived("mainWindow", mainWindow);
   if (!mainWindow)
@@ -62,13 +67,14 @@ void rckamClient(const rckam::client::RckamOptions &options)
     RCKAM_THREAD_CERR << "ERROR: failed to find imagePreview" << std::endl;
     BOOST_THROW_EXCEPTION(rckam::common::GtkmmException(ENOENT, "failed to find imagePreview"));
   }
+#endif
   // TODO: start the image loader thread
   // signals must be connected manually with gtkmm and preferably in the constructors of the relevant classes.
   // Alternately, compile with -rdynamic and use "gtk_builder_connect_signals(builder->gobj(), NULL)" but
   // this restricts the callbacks to functions only - no class methods
   try
   {
-    application->run(*mainWindow);
+    application->run();
   }
   catch(rckam::common::ExceptionData &exception)
   {
@@ -82,7 +88,7 @@ void rckamClient(const rckam::client::RckamOptions &options)
   {
     RCKAM_THREAD_CERR << "ERROR: unknown exception" << std::endl;
   }
-  delete mainWindow;
-  delete imagePreview;
+//  delete mainWindow;
+//  delete imagePreview;
 }
 

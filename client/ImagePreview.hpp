@@ -18,8 +18,6 @@
 #include <gtkmm/image.h>
 #include <gtkmm/builder.h>
 #include <glibmm/refptr.h>
-#include <giomm/file.h>
-#include <gdkmm/pixbufloader.h>
 
 namespace rckam
 {
@@ -30,10 +28,8 @@ class ImagePreview: public Gtk::Image
 {
 public:
   ImagePreview(GtkImage *baseObject, const Glib::RefPtr<Gtk::Builder> &builder);
-  void open_file_view(const Glib::RefPtr<Gio::File>& file);
   void set(const char *data, size_t size);
 private:
-  Glib::RefPtr<Gdk::PixbufLoader> pixbufLoader_;
 };
 
 } // namespace client

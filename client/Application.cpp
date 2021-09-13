@@ -14,26 +14,65 @@
 
 #include "client/Application.hpp"
 
+#include <gtkmm/builder.h>
+
 #include "common/Debug.hpp"
+#include "common/Exceptions.hpp"
+#include "MainWindow.hpp"
+#include "ImageLoader.hpp"
 
 namespace rckam
 {
 namespace client
 {
 
-Application::Application()
+Application::Application(const RckamOptions &options)
 : Gtk::Application("rckam.client.application", Gio::APPLICATION_HANDLES_OPEN)
+, mainWindow_(nullptr)
+, imagePreview_(nullptr)
 {
+  auto builder = Gtk::Builder::create();
+  try
+  {
+    builder->add_from_resource("/resources/rckam.glade");
+  }
+  catch(const Glib::Error& ex)
+  {
+    RCKAM_THREAD_CERR << "ERROR: Building menus and toolbar failed: " <<  ex.what() << std::endl;
+    BOOST_THROW_EXCEPTION(rckam::common::GtkmmException(ex.code(), ex.what()));
+  }
+  builder->get_widget_derived("mainWindow", mainWindow_);
+  if (!mainWindow_)
+  {
+    RCKAM_THREAD_CERR << "ERROR: failed to find mainWindow" << std::endl;
+    BOOST_THROW_EXCEPTION(rckam::common::GtkmmException(ENOENT, "failed to find mainWindow"));
+  }
+  builder->get_widget_derived("imagePreview", imagePreview_);
+  if (!imagePreview_)
+  {
+    RCKAM_THREAD_CERR << "ERROR: failed to find imagePreview" << std::endl;
+    BOOST_THROW_EXCEPTION(rckam::common::GtkmmException(ENOENT, "failed to find imagePreview"));
+  }
 }
 
-Glib::RefPtr<Application> Application::create()
+Application::~Application()
 {
-  return Glib::RefPtr<rckam::client::Application>(new Application());
+  if (imagePreview_) delete imagePreview_;
+  if (mainWindow_) delete mainWindow_;
 }
 
-int Application::run(Gtk::Window &window)
+Glib::RefPtr<Application> Application::create(const RckamOptions &options)
 {
-  return  Gtk::Application::run(window);
+  return Glib::RefPtr<rckam::client::Application>(new Application(options));
+}
+
+int Application::run()
+{
+  assert(nullptr != imagePreview_);
+  ImageLoader imageLoader(*imagePreview_, ipAddress_, dataPort_);
+  imageLoader.start();
+  return  Gtk::Application::run(*mainWindow_);
+  imageLoader.stop();
 }
 
 void Application::on_activate()

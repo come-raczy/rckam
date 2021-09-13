@@ -17,6 +17,7 @@
 
 #include <thread>
 #include <vector>
+#include <boost/asio.hpp>
 
 #include "ImagePreview.hpp"
 
@@ -36,13 +37,17 @@ namespace client
 class ImageLoader
 {
 public:
-  ImageLoader(ImagePreview &imagePreview);
+  ImageLoader(ImagePreview &imagePreview, const std::string &ipAddress, unsigned port);
   ~ImageLoader();
   void start();
   void stop() {stop_ = true;}
   bool isRunning() {return thread_.joinable();}
 private:
   ImagePreview *imagePreview_;
+  boost::asio::io_service ioService_;
+  boost::asio::ip::tcp::socket socket_;
+  std::string ipAddress_;
+  unsigned dataPort_;
   std::thread thread_;
   std::exception_ptr threadException_;
   bool stop_;
