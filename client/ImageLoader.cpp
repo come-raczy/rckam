@@ -29,8 +29,10 @@ namespace client
 
 ImageLoader::ImageLoader(ImagePreview &imagePreview, const std::string &ipAddress, const unsigned dataPort)
 : imagePreview_(&imagePreview)
-, ioService_()
-, socket_(ioService_)
+//, ioService_()
+//, socket_(ioService_)
+, ioContext_()
+, socket_(ioContext_)
 , ipAddress_(ipAddress)
 , dataPort_(dataPort)
 , remoteEndpoint_(boost::asio::ip::make_address_v4(ipAddress), dataPort)
@@ -84,17 +86,25 @@ void ImageLoader::readPreview(std::vector<char> &data)
   // read the image
   // TCP
   // const size_t count2 = boost::asio::read(socket_, boost::asio::buffer(data), boost::asio::transfer_exactly(byteCount), error);
-  // UDP
-  const size_t count2 = socket_.receive_from(boost::asio::buffer(data), senderEndpoint, FLAGS, error);
-  if (error)
+  // UDP - loop until all data has been received
+  size_t offset = 0;
+  while(byteCount > offset)
   {
-    auto message = boost::format("ERROR: failed to read image data from data socket: %i: %s") % error.value() % error.message();
-    BOOST_THROW_EXCEPTION(RckamException(message.str()));
-  }
-  else if (byteCount != count2)
-  {
-    auto message = boost::format("ERROR: failed to read %i bytes for image from data socket: read only %i") % byteCount % count2;
-    BOOST_THROW_EXCEPTION(RckamException(message.str()));
+    constexpr size_t MAX_PACKET_SIZE = 1472; // MTU (1500) - IP (20) - UDP (8)
+    const size_t remaining = byteCount - offset;
+    const size_t size = std::min(MAX_PACKET_SIZE, remaining);
+    const size_t count2 = socket_.receive_from(boost::asio::buffer(data.data() + offset, size), senderEndpoint, FLAGS, error);
+    if (error)
+    {
+      auto message = boost::format("ERROR: failed to read image data from data socket: %i: %s") % error.value() % error.message();
+      BOOST_THROW_EXCEPTION(RckamException(message.str()));
+    }
+    else if (size != count2)
+    {
+      auto message = boost::format("ERROR: failed to read %i bytes for image from data socket: read only %i") % size % count2;
+      BOOST_THROW_EXCEPTION(RckamException(message.str()));
+    }
+    offset += size;
   }
 }
 

@@ -50,7 +50,8 @@ public:
   bool isRunning() {return readPreviewsThread_.joinable() || setPreviewsThread_.joinable();}
 private:
   ImagePreview *imagePreview_;
-  boost::asio::io_service ioService_;
+  //boost::asio::io_service ioService_;
+  boost::asio::io_context ioContext_;
   boost::asio::ip::udp::socket socket_;
   std::string ipAddress_;
   unsigned dataPort_;
