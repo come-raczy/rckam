@@ -179,7 +179,7 @@ void CameraController::transferData()
     }
     else if (sizeof(size_t) + header.size() != count1)
     {
-      auto message = boost::format("ERROR: failed to send %i bytes for byte count to data socket: read only %i") % (header.size() + sizeof(size_t)) % count1;
+      auto message = boost::format("ERROR: failed to send %i bytes for byte count to data socket: sent only %i") % (header.size() + sizeof(size_t)) % count1;
       BOOST_THROW_EXCEPTION(RckamException(message.str()));
     }
     // TCP
@@ -191,15 +191,16 @@ void CameraController::transferData()
       const size_t remaining = byteCount - offset;
       const size_t size = std::min(MAX_PAYLOAD, remaining);
       bufferSequence[1] = const_buffer(data + offset, size);
+      //RCKAM_THREAD_CERR << "INFO: sending " << (size + header.size()) << "=" << size << "+" << header.size() << " bytes at offset " << offset << " for " << *imageId << ":" << *packetId << std::endl;
       const auto count2 = socket_.send_to(bufferSequence, remoteEndpoint_, FLAGS, error); 
       if (error)
       {
         auto message = boost::format("ERROR: failed to send image data to data socket: %i: %s") % error.value() % error.message();
         BOOST_THROW_EXCEPTION(RckamException(message.str()));
       }
-      else if (size != count2)
+      else if (size + header.size() != count2)
       {
-        auto message = boost::format("ERROR: failed to send %i bytes of image data to data socket: read only %i") % size % count2;
+        auto message = boost::format("ERROR: failed to send %i bytes of image data to data socket: sent only %i") % (size + header.size()) % count2;
         BOOST_THROW_EXCEPTION(RckamException(message.str()));
       }
       offset += size;
@@ -209,6 +210,9 @@ void CameraController::transferData()
     conditionVariables_[index].notify_one();
     index = (index + 1) % 2;
     ++currentImageId;
+
+//stopPreview_ = (currentImageId > 3);
+
   }
 }
 
