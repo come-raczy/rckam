@@ -100,18 +100,18 @@ void ImageLoader::readPreview(std::vector<char> &data)
       auto message = boost::format("ERROR: failed to read byte count from data socket: %i: %s") % error.value() % error.message();
       BOOST_THROW_EXCEPTION(RckamException(message.str()));
     }
+    //RCKAM_THREAD_CERR << "INFO: received " << count << " bytes: " << *imageId << ":" << *packetId << ": expected " << currentImageId_ << ":" << nextPacketId << std::endl;
     // if first packet of the image, initialize size, offset, counter and flags
     if (0 == *packetId)
     {
-      offset = 0;
       if (0 != nextPacketId)
       {
         RCKAM_THREAD_CERR << "WARNING: lost packets for image " << currentImageId_ << " discarding" << std::endl;
       }
       // check that the images are in sequence
-      if (currentImageId_ + 1 != *imageId)
+      if (static_cast<uint16_t>(currentImageId_ + 1) != *imageId)
       {
-        RCKAM_THREAD_CERR << "WARNING: unexpected image id: expected " << (currentImageId_ + 1) << ": receiving " << (*imageId) << std::endl;
+        RCKAM_THREAD_CERR << "WARNING: unexpected image id: expected " << static_cast<uint16_t>(currentImageId_ + 1) << ": receiving " << (*imageId) << std::endl;
       }
       currentImageId_ = *imageId;
       // the payload should be sizeof(size_t)
@@ -120,10 +120,14 @@ void ImageLoader::readPreview(std::vector<char> &data)
         RCKAM_THREAD_CERR << "WARNING: first packet for image " << currentImageId_ << " has incorrect size: expected " << (header.size() + sizeof(size_t)) << " bytes: received " << count << " bytes: discarding" << std::endl;
         nextPacketId = -1;
         discard = true;
+        offset = 0;
         continue;
       }
-      byteCount = *reinterpret_cast<size_t *>(data.data());
+      byteCount = *reinterpret_cast<size_t *>(data.data() + offset);
+      offset = 0;
       // resize data buffer to next multiple of MAX_PAYLOAD to allow for lost packets
+      const size_t resizeTo = (((byteCount + MAX_PAYLOAD - 1) / MAX_PAYLOAD) * MAX_PAYLOAD);
+      //RCKAM_THREAD_CERR << "INFO: image byteCount = " << byteCount << " - resizing buffer to " << resizeTo << " bytes" << std::endl;
       data.resize(((byteCount + MAX_PAYLOAD - 1) / MAX_PAYLOAD) * MAX_PAYLOAD);
       nextPacketId = 1;
       discard = false;
