@@ -53,6 +53,7 @@ void CameraController::run()
   std::array<char, 1> receiveBuffer;
   boost::system::error_code error;
   constexpr boost::asio::socket_base::message_flags FLAGS = 0;
+  RCKAM_THREAD_CERR << "INFO: waiting for data on " << socket_.local_endpoint().address() << ":" << socket_.local_endpoint().port() << "..." << std::endl;
   socket_.receive_from(boost::asio::buffer(receiveBuffer), remoteEndpoint_, FLAGS, error);
   if (error)
   {
