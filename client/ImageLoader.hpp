@@ -70,6 +70,8 @@ private:
   // mutex for the whole instance for start and stop control
   std::mutex mutex_;
   bool stop_;
+  /// image counter to detect UDP packet losses
+  uint16_t currentImageId_;
   /// loop that reads the image previews as they are produced on the socket
   void readPreviews();
   /// wrapper for exception management

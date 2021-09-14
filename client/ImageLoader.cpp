@@ -42,9 +42,17 @@ ImageLoader::ImageLoader(ImagePreview &imagePreview, const std::string &ipAddres
 , setPreviewsThreadException_(nullptr)
 , buffersEmpty_{true, true}
 , stop_(true)
+, currentImageId_(-1)
 {
 }
 
+/**
+ ** The implementation doesn't make any effort to recover from errors (lost packets
+ ** and packets out of sequence). When packets are lost, the whole image is discarded.
+ ** In that case, the remaining packets for the image are simply skipped until the 
+ ** first packet of the subsequent image is received. At that point, the new image
+ ** is received normally.
+ **/
 void ImageLoader::readPreview(std::vector<char> &data)
 {
 #if 0
@@ -62,50 +70,93 @@ void ImageLoader::readPreview(std::vector<char> &data)
 #endif
   constexpr boost::asio::socket_base::message_flags FLAGS = 0;
   using common::RckamException;
-  std::array<char, sizeof(size_t)> byteCountBuffer;
   boost::system::error_code error;
   // read the size of the image in bytes
   // TCP
+  // std::array<char, sizeof(size_t)> byteCountBuffer;
   // const size_t count1 = boost::asio::read(socket_, boost::asio::buffer(byteCountBuffer), boost::asio::transfer_exactly(sizeof(size_t)), error);
   // UDP
   boost::asio::ip::udp::endpoint senderEndpoint;
-  const size_t count1 = socket_.receive_from(boost::asio::buffer(byteCountBuffer), senderEndpoint, FLAGS, error);
-  if (error)
-  {
-    auto message = boost::format("ERROR: failed to read byte count from data socket: %i: %s") % error.value() % error.message();
-    BOOST_THROW_EXCEPTION(RckamException(message.str()));
-  }
-  else if (sizeof(size_t) != count1)
-  {
-    auto message = boost::format("ERROR: failed to read %i bytes for byte count from data socket: read only %i") % sizeof(size_t) % count1;
-    BOOST_THROW_EXCEPTION(RckamException(message.str()));
-  }
-  const size_t byteCount = *(reinterpret_cast<size_t *>(byteCountBuffer.data()));
-  RCKAM_THREAD_CERR << "INFO: cout1 = " << std::setw(4) << count1 << " byteCount = " <<  std::setw(8) << byteCount << std::endl;
-  data.resize(byteCount);
-  // read the image
-  // TCP
-  // const size_t count2 = boost::asio::read(socket_, boost::asio::buffer(data), boost::asio::transfer_exactly(byteCount), error);
-  // UDP - loop until all data has been received
+  std::array<char, 4> header; // 2 bytes for image id, 2 bytes for packet id
+  uint16_t * const imageId = reinterpret_cast<uint16_t*>(header.data());
+  uint16_t * const packetId = reinterpret_cast<uint16_t*>(header.data() + 2);
+  bool done = false;
   size_t offset = 0;
-  while(byteCount > offset)
+  constexpr size_t MAX_PACKET_SIZE = 1472;
+  constexpr size_t MAX_PAYLOAD = MAX_PACKET_SIZE - header.size();
+  data.resize(MAX_PAYLOAD);
+  using boost::asio::mutable_buffer;
+  mutable_buffer headerBuffer = mutable_buffer(header.data(), header.size());
+  std::array<mutable_buffer, 2> bufferSequence{headerBuffer, mutable_buffer(data.data() + offset, MAX_PAYLOAD)};
+  uint16_t nextPacketId = 0;
+  bool discard = true; // in case the first packet gets lost
+  size_t byteCount = 0;
+  while (!done)
   {
-    constexpr size_t MAX_PACKET_SIZE = 1472; // MTU (1500) - IP (20) - UDP (8)
-    const size_t remaining = byteCount - offset;
-    const size_t size = std::min(MAX_PACKET_SIZE, remaining);
-    const size_t count2 = socket_.receive_from(boost::asio::buffer(data.data() + offset, size), senderEndpoint, FLAGS, error);
+    bufferSequence[1] = mutable_buffer(data.data() + offset, MAX_PAYLOAD);
+    const size_t count = socket_.receive_from(bufferSequence, senderEndpoint, FLAGS, error);
     if (error)
     {
-      auto message = boost::format("ERROR: failed to read image data from data socket: %i: %s") % error.value() % error.message();
+      auto message = boost::format("ERROR: failed to read byte count from data socket: %i: %s") % error.value() % error.message();
       BOOST_THROW_EXCEPTION(RckamException(message.str()));
     }
-    else if (size != count2)
+    // if first packet of the image, initialize size, offset, counter and flags
+    if (0 == *packetId)
     {
-      auto message = boost::format("ERROR: failed to read %i bytes for image from data socket: read only %i") % size % count2;
-      BOOST_THROW_EXCEPTION(RckamException(message.str()));
+      offset = 0;
+      if (0 != nextPacketId)
+      {
+        RCKAM_THREAD_CERR << "WARNING: lost packets for image " << currentImageId_ << " discarding" << std::endl;
+      }
+      // check that the images are in sequence
+      if (currentImageId_ + 1 != *imageId)
+      {
+        RCKAM_THREAD_CERR << "WARNING: unexpected image id: expected " << (currentImageId_ + 1) << ": receiving " << (*imageId) << std::endl;
+      }
+      currentImageId_ = *imageId;
+      // the payload should be sizeof(size_t)
+      if (count != header.size() + sizeof(size_t))
+      {
+        RCKAM_THREAD_CERR << "WARNING: first packet for image " << currentImageId_ << " has incorrect size: expected " << (header.size() + sizeof(size_t)) << " bytes: received " << count << " bytes: discarding" << std::endl;
+        nextPacketId = -1;
+        discard = true;
+        continue;
+      }
+      byteCount = *reinterpret_cast<size_t *>(data.data());
+      // resize data buffer to next multiple of MAX_PAYLOAD to allow for lost packets
+      data.resize(((byteCount + MAX_PAYLOAD - 1) / MAX_PAYLOAD) * MAX_PAYLOAD);
+      nextPacketId = 1;
+      discard = false;
+      continue;
     }
-    offset += size;
+    // nextPacketId is > 0
+    if (discard || (*imageId != currentImageId_) || (*packetId != nextPacketId))
+    {
+      // we lost the end of currentImageId_ and the beginning of (*imageId) - discard both
+      discard = true;
+      currentImageId_ = *imageId;
+      nextPacketId = -1;
+      offset = 0;
+      continue;
+    }
+    // we received the expected packet of data
+    assert(byteCount > offset);
+    const size_t remaining = byteCount - offset;
+    const size_t payloadSize = std::min(MAX_PAYLOAD, remaining);
+    const size_t expectedSize = payloadSize + header.size();
+    if (count != expectedSize)
+    {
+      RCKAM_THREAD_CERR << "WARNING: packet " << *packetId << " for image " << currentImageId_ << " has incorrect size: expected " << expectedSize << ": received " << count << std::endl;
+      discard = true;
+      nextPacketId = -1;
+      continue;
+    }
+    offset += payloadSize;
+    done = (byteCount == offset);
+    ++nextPacketId;
   }
+  // erase the extra space
+  data.resize(byteCount);
 }
 
 ImageLoader::~ImageLoader()
@@ -144,6 +195,7 @@ void ImageLoader::start()
   // TCP
   //socket_.connect( udp::endpoint( ip::make_address(ipAddress_), dataPort_), error);
   std::array<char, 1> sendBuffer{0};
+  socket_.open(udp::v4());
   socket_.send_to(boost::asio::buffer(sendBuffer), remoteEndpoint_, FLAGS, error);
   if (error)
   {

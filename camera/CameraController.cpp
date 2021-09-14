@@ -134,7 +134,7 @@ void CameraController::transferData()
 {
   constexpr boost::asio::socket_base::message_flags FLAGS = 0;
   unsigned index = 0;
-  unsigned i = 0;
+  unsigned currentImageId = 0;
   while (!stopPreview_)
   {
     std::unique_lock<std::mutex> lock(mutexes_[index]);
@@ -146,8 +146,8 @@ void CameraController::transferData()
     CameraFile &cameraFile = cameraFiles_[index];
     const auto dataAndSize = cameraFile.getDataAndSize();
     const auto data = std::get<0>(dataAndSize);
-    const auto byteCount = std::get<1>(dataAndSize);
-    RCKAM_THREAD_CERR << "INFO: sending " << std::setw(4) << i << "... (" << byteCount << " bytes)" << std::endl;
+    const size_t byteCount = std::get<1>(dataAndSize);
+    RCKAM_THREAD_CERR << "INFO: sending " << std::setw(4) << currentImageId << "... (" << byteCount << " bytes)" << std::endl;
     // const std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
     // common::LockedOstream(std::cerr) << "capture completed. Received " << size << " bytes" << std::endl;
     // auto in_time_t = std::chrono::system_clock::to_time_t(now);
@@ -160,27 +160,38 @@ void CameraController::transferData()
     // TCP
     //const auto count1 = boost::asio::write( socket_, boost::asio::buffer(&byteCount, sizeof(size_t)), boost::asio::transfer_exactly(sizeof(size_t)), error);
     // UDP
-    const auto count1 = socket_.send_to(boost::asio::buffer(&byteCount, sizeof(size_t)), remoteEndpoint_, FLAGS, error); 
+    std::array<char, 4> header; // 2 bytes for image id, 2 bytes for packet id
+    uint16_t * const imageId = reinterpret_cast<uint16_t*>(header.data());
+    uint16_t * const packetId = reinterpret_cast<uint16_t*>(header.data() + 2);
+    *imageId = currentImageId;
+    *packetId = 0;
+    constexpr size_t MAX_PACKET_SIZE = 1472;
+    constexpr size_t MAX_PAYLOAD = MAX_PACKET_SIZE - header.size();
+    using boost::asio::const_buffer;
+    const_buffer headerBuffer = const_buffer(header.data(), header.size());
+    size_t offset = 0;
+    std::array<const_buffer, 2> bufferSequence{headerBuffer, const_buffer(reinterpret_cast<const char *>(&byteCount), sizeof(size_t))};
+    const auto count1 = socket_.send_to(bufferSequence, remoteEndpoint_, FLAGS, error); 
     if (error)
     {
       auto message = boost::format("ERROR: failed to send byte count to data socket: %i: %s") % error.value() % error.message();
       BOOST_THROW_EXCEPTION(RckamException(message.str()));
     }
-    else if (sizeof(size_t) != count1)
+    else if (sizeof(size_t) + header.size() != count1)
     {
-      auto message = boost::format("ERROR: failed to send %i bytes for byte count to data socket: read only %i") % sizeof(size_t) % count1;
+      auto message = boost::format("ERROR: failed to send %i bytes for byte count to data socket: read only %i") % (header.size() + sizeof(size_t)) % count1;
       BOOST_THROW_EXCEPTION(RckamException(message.str()));
     }
     // TCP
     //const auto count2 = boost::asio::write( socket_, boost::asio::buffer(data, byteCount), boost::asio::transfer_exactly(byteCount), error);
     // UDP
-    size_t offset = 0;
     while(byteCount > offset)
     {
-      constexpr size_t MAX_PACKET_SIZE = 1472;
+      ++(*packetId);
       const size_t remaining = byteCount - offset;
-      const size_t size = std::min(MAX_PACKET_SIZE, remaining);
-      const auto count2 = socket_.send_to(boost::asio::buffer(data, byteCount), remoteEndpoint_, FLAGS, error); 
+      const size_t size = std::min(MAX_PAYLOAD, remaining);
+      bufferSequence[1] = const_buffer(data + offset, size);
+      const auto count2 = socket_.send_to(bufferSequence, remoteEndpoint_, FLAGS, error); 
       if (error)
       {
         auto message = boost::format("ERROR: failed to send image data to data socket: %i: %s") % error.value() % error.message();
@@ -193,11 +204,11 @@ void CameraController::transferData()
       }
       offset += size;
     }
-    RCKAM_THREAD_CERR << "INFO: sending " << std::setw(4) << i << "... done" << std::endl;
+    RCKAM_THREAD_CERR << "INFO: sending " << std::setw(4) << currentImageId << "... done" << std::endl;
     cameraFilesEmpty_[index] = true;
     conditionVariables_[index].notify_one();
     index = (index + 1) % 2;
-    ++i;
+    ++currentImageId;
   }
 }
 
