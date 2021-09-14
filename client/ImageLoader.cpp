@@ -128,7 +128,7 @@ void ImageLoader::readPreview(std::vector<char> &data)
       // resize data buffer to next multiple of MAX_PAYLOAD to allow for lost packets
       const size_t resizeTo = (((byteCount + MAX_PAYLOAD - 1) / MAX_PAYLOAD) * MAX_PAYLOAD);
       //RCKAM_THREAD_CERR << "INFO: image byteCount = " << byteCount << " - resizing buffer to " << resizeTo << " bytes" << std::endl;
-      data.resize(((byteCount + MAX_PAYLOAD - 1) / MAX_PAYLOAD) * MAX_PAYLOAD);
+      data.resize(resizeTo);
       nextPacketId = 1;
       discard = false;
       continue;
