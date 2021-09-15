@@ -15,14 +15,11 @@
 #ifndef RCKAM_CLIENT_APPLICATION_HPP
 #define RCKAM_CLIENT_APPLICATION_HPP
 
-#include <string>
-
 #include <gtkmm/application.h>
 #include <gtkmm/window.h>
 
 #include "RckamOptions.hpp"
 #include "MainWindow.hpp"
-#include "ImagePreview.hpp"
 
 namespace rckam
 {
@@ -44,9 +41,6 @@ protected:
 private:
   void on_hide_window(Gtk::Window* window);
   rckam::client::MainWindow *mainWindow_;
-  rckam::client::ImagePreview *imagePreview_;
-  std::string ipAddress_;
-  unsigned dataPort_;
 };
 
 } // namespace client

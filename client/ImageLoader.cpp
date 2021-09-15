@@ -27,15 +27,16 @@ namespace rckam
 namespace client
 {
 
-ImageLoader::ImageLoader(ImagePreview &imagePreview, const std::string &ipAddress, const unsigned dataPort)
-: imagePreview_(&imagePreview)
+//ImageLoader::ImageLoader(ImagePreview &imagePreview, const std::string &ipAddress, const unsigned dataPort)
+ImageLoader::ImageLoader()
+//: imagePreview_(&imagePreview)
 //, ioService_()
 //, socket_(ioService_)
-, ioContext_()
+: ioContext_()
 , socket_(ioContext_)
-, ipAddress_(ipAddress)
-, dataPort_(dataPort)
-, remoteEndpoint_(boost::asio::ip::make_address_v4(ipAddress), dataPort)
+//, ipAddress_(ipAddress)
+//, dataPort_(dataPort)
+//, remoteEndpoint_(boost::asio::ip::make_address_v4(ipAddress), dataPort)
 , readPreviewsThread_()
 , setPreviewsThread_()
 , readPreviewsThreadException_(nullptr)
@@ -186,8 +187,9 @@ void ImageLoader::stop()
   }
 }
 
-void ImageLoader::start()
+void ImageLoader::start(ImagePreview &imagePreview, const std::string &ipAddress, unsigned dataPort)
 {
+  boost::asio::ip::udp::endpoint remoteEndpoint(boost::asio::ip::make_address_v4(ipAddress), dataPort);
   constexpr boost::asio::socket_base::message_flags FLAGS = 0;
   assert(!isRunning());
   RCKAM_THREAD_CERR << "INFO: starting image loader..." << std::endl;
@@ -195,21 +197,21 @@ void ImageLoader::start()
   using ip::udp;
   using common::RckamException;
   boost::system::error_code error;
-  RCKAM_THREAD_CERR << "INFO: connecting image loader to " <<  ipAddress_ << ":" << dataPort_ << "..." << std::endl;
+  RCKAM_THREAD_CERR << "INFO: connecting image loader to " <<  ipAddress << ":" << dataPort << "..." << std::endl;
   // TCP
-  //socket_.connect( udp::endpoint( ip::make_address(ipAddress_), dataPort_), error);
+  //socket_.connect( udp::endpoint( ip::make_address(ipAddress), dataPort), error);
   std::array<char, 1> sendBuffer{0};
   socket_.open(udp::v4());
-  socket_.send_to(boost::asio::buffer(sendBuffer), remoteEndpoint_, FLAGS, error);
+  socket_.send_to(boost::asio::buffer(sendBuffer), remoteEndpoint, FLAGS, error);
   if (error)
   {
-    //auto message = boost::format("ERROR: failed to connect to data socket '%s:%d' (check that server is ready): %d: %s") % ipAddress_ % dataPort_ % error.value() % error.message();
-    auto message = boost::format("ERROR: failed to send to remote socket '%s:%d' (check that server is ready): %d: %s") % ipAddress_ % dataPort_ % error.value() % error.message();
+    //auto message = boost::format("ERROR: failed to connect to data socket '%s:%d' (check that server is ready): %d: %s") % ipAddress % dataPort % error.value() % error.message();
+    auto message = boost::format("ERROR: failed to send to remote socket '%s:%d' (check that server is ready): %d: %s") % ipAddress % dataPort % error.value() % error.message();
     BOOST_THROW_EXCEPTION(RckamException(message.str()));
   }
   else
   {
-    RCKAM_THREAD_CERR << "INFO: connecting image loader to " <<  ipAddress_ << ":" << dataPort_ << "... done" << std::endl;
+    RCKAM_THREAD_CERR << "INFO: connecting image loader to " <<  ipAddress << ":" << dataPort << "... done" << std::endl;
     RCKAM_THREAD_CERR << "INFO: starting threads..." << std::endl;
     std::unique_lock lock(mutex_);
     stop_ = false;
@@ -249,7 +251,7 @@ void ImageLoader::readPreviews()
   unsigned index = 0;
   while (!stop_)
   {
-    RCKAM_THREAD_CERR << "INFO: acquiring empty buffer      " << std::setw(5) << i << "..." << std::endl;
+    //RCKAM_THREAD_CERR << "INFO: acquiring empty buffer      " << std::setw(5) << i << "..." << std::endl;
     std::unique_lock<std::mutex> lock(mutexes_[index]);
     conditionVariables_[index].wait(lock, [&] {return buffersEmpty_[index] || stop_;});
     if (stop_)
@@ -291,7 +293,7 @@ void ImageLoader::setPreviews()
   unsigned index = 0;
   while (!stop_)
   {
-    RCKAM_THREAD_CERR << "INFO: acquiring full buffer  " << std::setw(5) << i << "..." << std::endl;
+    //RCKAM_THREAD_CERR << "INFO: acquiring full buffer  " << std::setw(5) << i << "..." << std::endl;
     std::unique_lock<std::mutex> lock(mutexes_[index]);
     conditionVariables_[index].wait(lock, [&] {return (false == buffersEmpty_[index]) || stop_;});
     if (stop_)

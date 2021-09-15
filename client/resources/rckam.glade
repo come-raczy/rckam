@@ -4,8 +4,8 @@
   <requires lib="gtk+" version="3.24"/>
   <object class="GtkApplicationWindow" id="mainWindow">
     <property name="can-focus">False</property>
-    <property name="default-width">1000</property>
-    <property name="default-height">1000</property>
+    <property name="default-width">1920</property>
+    <property name="default-height">1080</property>
     <child>
       <object class="GtkBox">
         <property name="visible">True</property>
@@ -219,14 +219,56 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkImage" id="imagePreview">
-                    <property name="width-request">960</property>
-                    <property name="height-request">640</property>
+                  <object class="GtkPaned">
                     <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="tooltip-text" translatable="yes">Image preview</property>
-                    <property name="double-buffered">False</property>
-                    <property name="icon-name">stop-circle</property>
+                    <property name="can-focus">True</property>
+                    <child>
+                      <object class="GtkImage" id="imagePreview">
+                        <property name="width-request">960</property>
+                        <property name="height-request">640</property>
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="tooltip-text" translatable="yes">Image preview</property>
+                        <property name="double-buffered">False</property>
+                        <property name="icon-name">stop-circle</property>
+                      </object>
+                      <packing>
+                        <property name="resize">False</property>
+                        <property name="shrink">True</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkFixed">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <child>
+                          <object class="GtkToggleButton" id="startStopPreviewToggleButton">
+                            <property name="width-request">100</property>
+                            <property name="height-request">80</property>
+                            <property name="visible">True</property>
+                            <property name="can-focus">True</property>
+                            <property name="receives-default">True</property>
+                            <signal name="toggled" handler="on_startStopPreviewToggleButton_toggled" swapped="no"/>
+                            <child>
+                              <object class="GtkImage" id="startStopPreviewImage">
+                                <property name="visible">True</property>
+                                <property name="can-focus">False</property>
+                                <property name="stock">gtk-media-play</property>
+                                <property name="icon_size">6</property>
+                              </object>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="x">57</property>
+                            <property name="y">162</property>
+                          </packing>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="resize">True</property>
+                        <property name="shrink">True</property>
+                      </packing>
+                    </child>
                   </object>
                   <packing>
                     <property name="name">imagePreview</property>

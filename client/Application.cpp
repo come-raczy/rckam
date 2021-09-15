@@ -29,9 +29,6 @@ namespace client
 Application::Application(const RckamOptions &options)
 : Gtk::Application("rckam.client.application", Gio::APPLICATION_HANDLES_OPEN)
 , mainWindow_(nullptr)
-, imagePreview_(nullptr)
-, ipAddress_(options.ipAddress)
-, dataPort_(options.dataPort)
 {
   auto builder = Gtk::Builder::create();
   try
@@ -49,17 +46,11 @@ Application::Application(const RckamOptions &options)
     RCKAM_THREAD_CERR << "ERROR: failed to find mainWindow" << std::endl;
     BOOST_THROW_EXCEPTION(rckam::common::GtkmmException(ENOENT, "failed to find mainWindow"));
   }
-  builder->get_widget_derived("imagePreview", imagePreview_);
-  if (!imagePreview_)
-  {
-    RCKAM_THREAD_CERR << "ERROR: failed to find imagePreview" << std::endl;
-    BOOST_THROW_EXCEPTION(rckam::common::GtkmmException(ENOENT, "failed to find imagePreview"));
-  }
+  mainWindow_->setServer(options.ipAddress, options.dataPort);
 }
 
 Application::~Application()
 {
-  if (imagePreview_) delete imagePreview_;
   if (mainWindow_) delete mainWindow_;
 }
 
@@ -70,11 +61,7 @@ Glib::RefPtr<Application> Application::create(const RckamOptions &options)
 
 int Application::run()
 {
-  assert(nullptr != imagePreview_);
-  ImageLoader imageLoader(*imagePreview_, ipAddress_, dataPort_);
-  imageLoader.start();
   return  Gtk::Application::run(*mainWindow_);
-  imageLoader.stop();
 }
 
 void Application::on_activate()

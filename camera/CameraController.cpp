@@ -21,15 +21,18 @@
 #include <iomanip>
 
 #include "common/Debug.hpp"
-#include "Exceptions.hpp"
+#include "common/Rckam.hpp"
+#include "camera/Exceptions.hpp"
+#include "camera/CameraList.hpp"
 
 namespace rckam
 {
 namespace camera
 {
 
-CameraController::CameraController(const char * const model, const char * const usbPort, const unsigned dataPort, Gphoto2Context &context)
-: camera_(model, usbPort, context)
+CameraController::CameraController(const char * const model, const char * const usbPort, const unsigned dataPort, const unsigned controlPort, Gphoto2Context &context)
+: context_(&context)
+, camera_(model, usbPort, context)
 //, dataSocket_()
 //, io_service_()
 //, acceptor_(io_service_, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), dataPort))
@@ -37,12 +40,113 @@ CameraController::CameraController(const char * const model, const char * const 
 //, resolver_(io_context_)
 , io_context_()
 , socket_(io_context_, boost::asio::ip::udp::endpoint(boost::asio::ip::udp::v4(), dataPort))
+, controlPort_(controlPort)
+, stopControl_(false)
+, controlThread_(&CameraController::controlWrapper, this)
 //, communicationSocket_()
 {
 }
 
 CameraController::~CameraController()
 {
+  stopControl_ = true;
+  if (controlThread_.joinable())
+  {
+    controlThread_.join();
+  }
+}
+
+void CameraController::controlWrapper()
+{
+  try
+  {
+    control();
+  }
+  catch(std::exception &e)
+  {
+    RCKAM_THREAD_CERR << "WARNING: control thread terminated: " << e.what() << std::endl;
+    controlException_ = std::current_exception();
+  }
+  catch(...)
+  {
+    RCKAM_THREAD_CERR << "WARNING: control thread terminated:unknown exception" << std::endl;
+    controlException_ = std::current_exception();
+  }
+}
+
+void CameraController::control()
+{
+  using common::ServerCommand;
+  using namespace boost::asio;
+  using ip::tcp;
+  io_service ioService;
+  tcp::acceptor acceptor(ioService, tcp::endpoint(tcp::v4(), controlPort_));
+  tcp::socket socket(ioService);
+  while (!stopControl_)
+  {
+    boost::system::error_code error;
+    // wait for a request
+    acceptor.accept(socket);
+    boost::asio::streambuf buffer;
+    const unsigned count = boost::asio::read(socket, buffer, boost::asio::transfer_all(), error);
+    if(error)
+    {
+      RCKAM_THREAD_CERR << "WARNING: error while reading the control socket: " << error.value() << error.message() << std::endl;
+      continue;
+    }
+    if (sizeof(ServerCommand) > count)
+    //read operation
+    {
+      RCKAM_THREAD_CERR << "WARNING: error while reading the control socket: message too short: received " << count << " bytes - ServerCommands is " << sizeof(ServerCommand) << " bytes" << std::endl;
+      continue;
+    }
+    std::string data(boost::asio::buffer_cast<const char*>(buffer.data()));
+    assert(data.size() > sizeof(ServerCommand));
+    const ServerCommand command = *(reinterpret_cast<ServerCommand *>(data.data()));
+    switch (command)
+    {
+      case ServerCommand::ECHO_ONLY:
+        sendResponse(socket, std::move(data));
+        break;
+      case ServerCommand::LIST_CAMERAS:
+        sendResponse(socket, listCameras());
+        break;
+      default:
+        sendResponse(socket, commandNotSupported());
+    }
+  }
+}
+
+void CameraController::sendResponse(boost::asio::ip::tcp::socket &socket, const std::string &&data)
+{
+  boost::system::error_code error;
+  boost::asio::write(socket, boost::asio::buffer(data), error);
+  if(error)
+  {
+    RCKAM_THREAD_CERR << "WARNING: error while sending response on control socket: " << error.value() << ": " << error.message() << std::endl;
+  }
+}
+
+std::string CameraController::listCameras()
+{
+  std::string response;
+  std::string separator;
+  CameraList cameraList(*context_);
+  for(unsigned i = 0; cameraList.count() > i; ++i)
+  {
+    response.append(separator);
+    response.append(cameraList.model(i));
+    response.append(1, '\t');
+    response.append(cameraList.port(i));
+    separator = "\n";
+  }
+  return response;
+}
+
+std::string CameraController::commandNotSupported()
+{
+  static const std::string response{0,common::ResponseCode::NOT_SUPPORTED};
+  return response;
 }
 
 void CameraController::run()

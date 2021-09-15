@@ -57,7 +57,7 @@ int main(int argc, char *argv[])
       const auto model = cameraList.model(selected);
       const auto usbPort = cameraList.port(selected);
       //rckam::camera::Camera camera(cameraList.name(selected), cameraList.value(selected), context);
-      rckam::camera::CameraController controller(model, usbPort, rckam::common::dataPort, context);
+      rckam::camera::CameraController controller(model, usbPort, rckam::common::dataPort, rckam::common::controlPort, context);
       controller.run();
     }
     else

@@ -27,6 +27,7 @@
 #include <boost/regex.hpp>
 
 #include "common/Program.hpp"
+#include "common/Rckam.hpp"
 
 namespace rckam
 {
@@ -39,7 +40,8 @@ public:
   RckamOptions();
   common::Options::Action parse(int argc, char *argv[]);
   std::string ipAddress;
-  unsigned dataPort = 12345;
+  unsigned dataPort = common::dataPort;
+  unsigned controlPort = common::controlPort;
 private:
   std::string usagePrefix() const {return "rckam -r <reference> -b <base calls> [optional arguments]";}
   void postProcess(boost::program_options::variables_map &vm);

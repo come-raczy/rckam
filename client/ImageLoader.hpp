@@ -40,10 +40,11 @@ namespace client
 class ImageLoader
 {
 public:
-  ImageLoader(ImagePreview &imagePreview, const std::string &ipAddress, unsigned port);
+  ImageLoader();
+  //ImageLoader(ImagePreview &imagePreview, const std::string &ipAddress, unsigned port);
   ~ImageLoader();
   /// start the preview stream
-  void start();
+  void start(ImagePreview &imagePreview, const std::string &ipAddress, unsigned dataPort);
   /// notifies threads for streaming previews to stop
   void stop();
   /// check if any of the associated threads is stilll executing
@@ -53,9 +54,9 @@ private:
   //boost::asio::io_service ioService_;
   boost::asio::io_context ioContext_;
   boost::asio::ip::udp::socket socket_;
-  std::string ipAddress_;
-  unsigned dataPort_;
-  boost::asio::ip::udp::endpoint remoteEndpoint_;
+  //std::string ipAddress_;
+  //unsigned dataPort_;
+  //boost::asio::ip::udp::endpoint remoteEndpoint_;
   std::thread readPreviewsThread_;
   std::thread setPreviewsThread_;
   std::exception_ptr readPreviewsThreadException_;

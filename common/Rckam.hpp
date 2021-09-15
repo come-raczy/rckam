@@ -20,14 +20,42 @@ namespace rckam
 namespace common
 {
 
+enum ServerCommand
+{
+  ECHO_ONLY = 0, // just checking if server is alive
+  GET_SERVER_CONFIG,
+  LIST_CAMERAS,
+  GET_CAMERA_CONFIG,
+  GET_CAMERA_SINGLE_CONFIG,
+  LIST_CAMERA_CONFIG,
+  SET_CAMERA_CONFIG,
+  SET_CAMERA_SINGLE_CONFIG,
+  CAMERA_CAPTURE,
+  CAMERA_TRIGGER_CAPTURE,
+  CAMERA_CAPTURE_PREVIEW,
+  CAMERA_SUMMARY,
+  CAMERA_ABOUT,
+  CAMERA_WAIT_FOR_EVENT,
+  PAN,
+  TILT,
+  LAST_COMMAND
+};
+
+enum ResponseCode
+{
+  NOT_SUPPORTED = 1,
+  LAST_CODE
+};
+
 constexpr unsigned dataPort = 12345;
+constexpr unsigned controlPort = 12346;
 
 #define TYP_INIT 0 
 #define TYP_SMLE 1 
 #define TYP_BIGE 2 
 
 /// implements byte reordering for 64 bits
-unsigned long long htonll(unsigned long long src)
+inline unsigned long long htonll(unsigned long long src)
 { 
   static int typ = TYP_INIT; 
   unsigned char c; 
