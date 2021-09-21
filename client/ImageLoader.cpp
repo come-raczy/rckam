@@ -219,6 +219,7 @@ void ImageLoader::start(ImagePreview &imagePreview, const std::string &ipAddress
     {
       bufferEmpty = true;
     }
+    imagePreview_ = &imagePreview;
     readPreviewsThreadException_ = nullptr;
     readPreviewsThread_ = std::thread(&ImageLoader::readPreviewsWrapper, this);
     setPreviewsThreadException_ = nullptr;
