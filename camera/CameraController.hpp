@@ -38,6 +38,16 @@ public:
   /// operate the camera
   void run();
   void stopPreview();
+  /**
+   ** \brief start capturing and transferring HDMI capture
+   **
+   ** This typically requires a camera with a clean HDMI output, connected
+   ** via a capture card (PCIe or USB) that is recognized by V4L2.
+   ** 
+   ** TODO: add options to configure the capture (format, frame rate, encoding, etc.)
+   **/
+  void startHdmiCapture();
+  void stopHdmiCapture();
 private:
   Gphoto2Context *context_;
   /// the underlying gphoto2 camera
@@ -66,6 +76,7 @@ private:
   bool stopControl_;
   std::thread controlThread_;
   std::exception_ptr controlException_;
+  bool stopHdmiCapture_;
   void transferData();
   void transferDataWrapper();
   void control();

@@ -19,6 +19,12 @@
 #include <boost/format.hpp>
 #include <chrono>
 #include <iomanip>
+#include <cerrno>
+
+#include <sys/mman.h>
+#include <sys/ioctl.h>
+#include <linux/videodev2.h>
+
 
 #include "common/Debug.hpp"
 #include "common/Rckam.hpp"
@@ -318,6 +324,106 @@ void CameraController::transferData()
 //stopPreview_ = (currentImageId > 3);
 
   }
+}
+
+void CameraController::startHdmiCapture()
+{
+  // NOTE: for more information and examplese:
+  // * https://kernel.readthedocs.io/en/latest/media/uapi/v4l/capture-example.html
+  // * https://gist.github.com/maxlapshin/1253534
+  // * https://jayrambhia.com/blog/capture-v4l2
+  // * https://gist.github.com/jayrambhia/5866483
+  // * https://web.archive.org/web/20110520211256/http://v4l2spec.bytesex.org/spec/capture-example.html
+  // TODO: parametrize the device
+  int fd = open("/dev/video0", O_RDWR);
+  // TODO: parametrize the format
+  // TODO: add frame rate
+  struct v4l2_format format = {0};
+  format.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+  format.fmt.pix.width = 1920;
+  format.fmt.pix.height = 1080;
+  //format.fmt.pix.pixelformat = V4L2_PIX_FMT_YUYV;
+  format.fmt.pix.pixelformat = V4L2_PIX_FMT_MJPEG;
+  format.fmt.pix.field = V4L2_FIELD_NONE;
+  if(-1 == ioctl(fd, VIDIOC_S_FMT, &format))
+  {
+    auto message = boost::format("ERROR: failed to set the HDMI video format: ") % errno % strerror(errno);
+    BOOST_THROW_EXCEPTION(RckamException(message.str()));
+  }
+  // TODO: parametrize the number of buffers
+  const int count = 2;
+  struct v4l2_requestbuffers req = {0};
+  req.count = count;
+  req.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+  // NOTE: this is MMAP, alternatives are READ and USRPTR
+  req.memory = V4L2_MEMORY_MMAP;
+  if (-1 == ioctl(fd, VIDIOC_REQBUFS, &req))
+  {
+    auto message = boost::format("ERROR: failed to request buffers for HDMI video: ") % errno % strerror(errno);
+    BOOST_THROW_EXCEPTION(RckamException(message.str()));
+  }
+  struct v4l2_buffer buf = {0};
+  buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+  buf.memory = V4L2_MEMORY_MMAP;
+  buf.index = 0;
+  if(-1 == ioctl(fd, VIDIOC_QUERYBUF, &buf))
+  {
+    auto message = boost::format("ERROR: failed to retrieve V4L2 buffers for HDMI video: ") % errno % strerror(errno);
+    BOOST_THROW_EXCEPTION(RckamException(message.str()));
+  }
+  auto buffer = (u_int8_t*)mmap (NULL, buf.length, PROT_READ | PROT_WRITE, MAP_SHARED, fd, buf.m.offset);
+  unsigned int type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+  if(-1 == ioctl(fd, VIDIOC_STREAMON, &type))
+  {
+    auto message = boost::format("ERROR: failed to start HDMI video stream: ") % errno % strerror(errno);
+    BOOST_THROW_EXCEPTION(RckamException(message.str()));
+  }
+  stopHdmiCapture_ = false;
+  while (!stopHdmiCapture_)
+  {
+    struct v4l2_buffer bufd = {0};
+    bufd.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+    bufd.memory = V4L2_MEMORY_MMAP;
+    bufd.index = 0;
+    if(-1 == ioctl(fd, VIDIOC_QBUF, &bufd))
+    {
+      auto message = boost::format("ERROR: failed to queue HDMI video buffer: ") % errno % strerror(errno);
+      BOOST_THROW_EXCEPTION(RckamException(message.str()));
+    }
+    //return bufd.bytesused;
+    //Wait for io operation
+    int camera = fd;
+    fd_set fds;
+    FD_ZERO(&fds);
+    FD_SET(camera, &fds);
+    struct timeval tv = {0};
+    tv.tv_sec = 2; //set timeout to 2 second
+    if(-1 == select(camera+1, &fds, NULL, NULL, &tv))
+    {
+      auto message = boost::format("ERROR: failed to wait for an HDMI frame: ") % errno % strerror(errno);
+      BOOST_THROW_EXCEPTION(RckamException(message.str()));
+    }
+    // TODO: transfer the buffer
+    //int file = open("output.yuy", O_WRONLY);
+    //write(file, buffer, size); //size is obtained from the query_buffer function
+    //dequeue_buffer(camera);
+    if(-1 == ioctl(fd, VIDIOC_DQBUF, &bufd))
+    {
+      auto message = boost::format("ERROR: failed to dequeue HDMI video buffer: ") % errno % strerror(errno);
+      BOOST_THROW_EXCEPTION(RckamException(message.str()));
+    }
+  }
+  type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+  if(-1 == ioctl(fd, VIDIOC_STREAMON, &type))
+  {
+    auto message = boost::format("ERROR: failed to stop HDMI video capture: ") % errno % strerror(errno);
+    BOOST_THROW_EXCEPTION(RckamException(message.str()));
+  }
+}
+
+void CameraController::stopHdmiCapture()
+{
+  stopHdmiCapture_ = true;
 }
 
 } // namespace camera
