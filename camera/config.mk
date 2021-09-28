@@ -135,7 +135,7 @@ CPPFLAGS += -DRCKAM_VERSION="$(RCKAM_VERSION)"
 CPPFLAGS += -DVERSION_STRING="$(VERSION_STRING)"
 CPPFLAGS += -I $(RCKAM_CAMERA_DIR)
 CPPFLAGS += -I $(RCKAM_ROOT_DIR)
-CXXFLAGS?=-std=c++17
+CXXFLAGS?=-std=c++17 -pthread
 CFLAGS?=-std=c99 
 
 LDFLAGS?=
@@ -175,7 +175,7 @@ CPPFLAGS += -Wfatal-errors -g -O2 -ftree-vectorize -finline-functions -fpredicti
 #CXXFLAGS += -g -mavx2 -O2 -ftree-vectorize -finline-functions -fpredictive-commoning -fgcse-after-reload -funswitch-loops -ftree-slp-vectorize -fvect-cost-model -fipa-cp-clone -ftree-phiprop
 endif # if DEBUG
 
-LDFLAGS+= -lz -lstdc++ -lrt -lgomp -lpthread
+LDFLAGS+= -lz -lstdc++ -lrt -lgomp -ludev
 #LDFLAGS+= -lpigpio
 
 ifneq (,$(GTEST_INCLUDEDIR))
