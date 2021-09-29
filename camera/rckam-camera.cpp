@@ -20,6 +20,7 @@
 #include "Gphoto2Context.hpp"
 #include "CameraList.hpp"
 #include "CameraController.hpp"
+#include "CaptureCard.hpp"
 #include "common/Rckam.hpp"
 
 int main(int argc, char *argv[])
@@ -46,6 +47,17 @@ int main(int argc, char *argv[])
   rckam::camera::Gphoto2Context context;
   try
   {
+
+const auto captureCards = rckam::camera::CaptureCard::detect();
+for (const auto &card: captureCards)
+{
+  std::cerr << card.card() << " (" << card.busInfo() << ")" << std::endl;
+  for (const auto &device: card.devNodes())
+  {
+    std::cerr << "    " << device << std::endl;
+  }
+}
+
     rckam::camera::CameraList cameraList(context);
     if (0 < cameraList.count())
     {

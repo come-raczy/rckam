@@ -55,6 +55,19 @@ public:
    ** const auto videoCaptureDevices = UserspaceDevice::matchProperty({"ID_V4L_CAPABILITIES", ":capture:"});
    **/
   static std::vector<UserspaceDevice> matchProperty(const Property &property);
+  /// get the value of the specified property - an empty string if not found
+  const std::string &getProperty(const std::string &property);
+  /// path of the device - e.g. "/devices/platform/scb/fd500000.pcie/..../video0"
+  const std::string &devPath() const {return devPath_;}
+  /// path of the device - e.g. "/dev/video0"
+  const std::string &devNode() const {return devNode_;}
+  /// name of the device - e.g. "video0"
+  const std::string &sysName() const {return sysName_;}
+  /// numeric index of the device - e.g. "0" for "video0"
+  unsigned sysNum() const;
+  const std::string &sysNumString() const {return sysNum_;}
+  /// the non-numeric prefix of sysName - e.g. "video" for "video0"
+  std::string sysType() const;
 protected:
   std::string devPath_;
   std::string devType_;
