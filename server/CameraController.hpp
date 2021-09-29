@@ -12,8 +12,8 @@
  ** <https://fsf.org/>
  **/
 
-#ifndef RCKAM_CAMERA_CAMERA_CONTROLLER_HPP
-#define RCKAM_CAMERA_CAMERA_CONTROLLER_HPP
+#ifndef RCKAM_SERVER_CAMERA_CONTROLLER_HPP
+#define RCKAM_SERVER_CAMERA_CONTROLLER_HPP
 
 #include <mutex>
 #include <condition_variable>
@@ -27,7 +27,7 @@
 
 namespace rckam
 {
-namespace camera
+namespace server
 {
 
 class CameraController
@@ -86,8 +86,8 @@ private:
   std::string commandNotSupported();
 };
 
-} // namespace camera
+} // namespace server
 } // namespace rckam
 
-#endif // #ifdef RCKAM_CAMERA_CAMERA_CONTROLLER_HPP
+#endif // #ifdef RCKAM_SERVER_CAMERA_CONTROLLER_HPP
 

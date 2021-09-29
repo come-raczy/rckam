@@ -18,7 +18,7 @@
 
 namespace rckam
 {
-namespace camera
+namespace server
 {
 
 Gphoto2Context::Gphoto2Context()
@@ -36,6 +36,6 @@ Gphoto2Context::~Gphoto2Context()
   }
 }
 
-} // namespace camera
+} // namespace server
 } // namespace rckam
 

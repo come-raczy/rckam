@@ -12,20 +12,22 @@
   ** <https://fsf.org/>
   **/
 
-#ifndef RCKAM_CAMERA_DATA_SOCKET_HPP
-#define RCKAM_CAMERA_DATA_SOCKET_HPP
+#ifndef RCKAM_SERVER_COMMUNICATION_SOCKET_HPP
+#define RCKAM_SERVER_COMMUNICATION_SOCKET_HPP
 
 namespace rckam
 {
-namespace camera
+namespace server
 {
 
-class DataSocket
+class CommunicationSocket
 {
+public:
+private:
 };
 
-} // namespace camera
+} // namespace server
 } // namespace rckam
 
-#endif // #ifndef RCKAM_CAMERA_DATA_SOCKET_HPP
+#endif // #ifndef RCKAM_SERVER_COMMUNICATION_SOCKET_HPP
 

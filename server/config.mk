@@ -103,11 +103,11 @@ ifeq (,$(RCKAM_ROOT_DIR))
 $(error Failed to infer RCKAM_ROOT_DIR from MAKEFILE_LIST: $(MAKEFILE_LIST))
 endif
 
-RCKAM_CAMERA_DIR?=$(RCKAM_ROOT_DIR)/camera
+RCKAM_SERVER_DIR?=$(RCKAM_ROOT_DIR)/server
 RCKAM_COMMON_DIR?=$(RCKAM_ROOT_DIR)/common
-RCKAM_MAKE_DIR?=$(RCKAM_CAMERA_DIR)
+RCKAM_MAKE_DIR?=$(RCKAM_SERVER_DIR)
 RCKAM_TEST_DIR?=$(RCKAM_ROOT_DIR)/tests
-RCKAM_BUILD_DIR_BASE?=$(RCKAM_CAMERA_DIR)/build
+RCKAM_BUILD_DIR_BASE?=$(RCKAM_SERVER_DIR)/build
 
 ifdef DEBUG
 BUILD_TYPE=debug
@@ -133,7 +133,7 @@ VERSION_STRING?=$(shell git describe --tags --always --abbrev=8 2> /dev/null || 
 CPPFLAGS?=-Wall -ggdb3
 CPPFLAGS += -DRCKAM_VERSION="$(RCKAM_VERSION)" 
 CPPFLAGS += -DVERSION_STRING="$(VERSION_STRING)"
-CPPFLAGS += -I $(RCKAM_CAMERA_DIR)
+CPPFLAGS += -I $(RCKAM_SERVER_DIR)
 CPPFLAGS += -I $(RCKAM_ROOT_DIR)
 CXXFLAGS?=-std=c++17 -pthread
 CFLAGS?=-std=c99 
@@ -208,11 +208,11 @@ endif
 ##
 ############################################################
 
-sources := $(wildcard $(RCKAM_CAMERA_DIR)/*.cpp)
-#programs := $(sources:$(RCKAM_CAMERA_DIR)/%.cpp=%)
-programs := rckam-camera
-all_lib_sources := $(filter-out $(programs:%=$(RCKAM_CAMERA_DIR)/%.cpp), $(sources))
-all_lib_objects := $(all_lib_sources:$(RCKAM_CAMERA_DIR)/%.cpp=$(BUILD)/%.o)
+sources := $(wildcard $(RCKAM_SERVER_DIR)/*.cpp)
+#programs := $(sources:$(RCKAM_SERVER_DIR)/%.cpp=%)
+programs := rckam-server
+all_lib_sources := $(filter-out $(programs:%=$(RCKAM_SERVER_DIR)/%.cpp), $(sources))
+all_lib_objects := $(all_lib_sources:$(RCKAM_SERVER_DIR)/%.cpp=$(BUILD)/%.o)
 
 all_common_sources := $(wildcard $(RCKAM_COMMON_DIR)/*.cpp)
 all_common_objects := $(all_common_sources:$(RCKAM_COMMON_DIR)/%.cpp=$(BUILD_COMMON)/%.o)

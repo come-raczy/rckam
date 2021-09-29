@@ -30,7 +30,7 @@
 
 namespace rckam
 {
-namespace camera
+namespace server
 {
 
 // UserspaceDevice::UserspaceDevice(const std::string &path)
@@ -106,6 +106,6 @@ std::vector<CaptureCard> CaptureCard::detect()
   return captureCards;
 }
 
-} // namespace camera
+} // namespace server
 } // namespace rckam
 

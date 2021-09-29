@@ -12,8 +12,8 @@
  ** <https://fsf.org/>
  **/
 
-#ifndef RCKAM_CAMERA_OPTIONS_HPP
-#define RCKAM_CAMERA_OPTIONS_HPP
+#ifndef RCKAM_SERVER_OPTIONS_HPP
+#define RCKAM_SERVER_OPTIONS_HPP
 
 #include <boost/core/noncopyable.hpp>
 #include <boost/algorithm/string/join.hpp>
@@ -21,7 +21,7 @@
 
 namespace rckam
 {
-namespace camera
+namespace server
 {
 
 #define STRINGIFY(s) XSTRINGIFY(s)
@@ -75,8 +75,8 @@ private:
   const char* const* argv_ = 0;
 };
 
-} // namespace camera
+} // namespace server
 } // namespace rckam
 
-#endif // #ifndef RCKAM_CAMERA_OPTIONS_HPP
+#endif // #ifndef RCKAM_SERVER_OPTIONS_HPP
 

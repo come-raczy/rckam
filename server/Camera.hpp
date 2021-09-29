@@ -12,8 +12,8 @@
  ** <https://fsf.org/>
  **/
 
-#ifndef RCKAM_CAMERA_CAMERA_HPP
-#define RCKAM_CAMERA_CAMERA_HPP
+#ifndef RCKAM_SERVER_CAMERA_HPP
+#define RCKAM_SERVER_CAMERA_HPP
 
 #include <string>
 
@@ -25,7 +25,7 @@
 
 namespace rckam
 {
-namespace camera
+namespace server
 {
 /**
  ** \brief Encapsulation of the gphoto2 Camera concept and relevant functions
@@ -56,8 +56,8 @@ private:
   GPPortInfoList *portInfoList();
 };
 
-} // namespace camera
+} // namespace server
 } // namespace rckam
 
-#endif // #ifdef RCKAM_CAMERA_CAMERA_HPP
+#endif // #ifdef RCKAM_SERVER_CAMERA_HPP
 

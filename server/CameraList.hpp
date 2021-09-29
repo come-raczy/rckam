@@ -12,8 +12,8 @@
  ** <https://fsf.org/>
  **/
 
-#ifndef RCKAM_CAMERA_CAMERA_LIST_HPP
-#define RCKAM_CAMERA_CAMERA_LIST_HPP
+#ifndef RCKAM_SERVER_CAMERA_LIST_HPP
+#define RCKAM_SERVER_CAMERA_LIST_HPP
 
 #include <gphoto2/gphoto2-list.h>
 
@@ -21,7 +21,7 @@
 
 namespace rckam
 {
-namespace camera
+namespace server
 {
 
 class CameraList
@@ -41,8 +41,8 @@ private:
   unsigned count_;
 };
 
-} // namespace camera
+} // namespace server
 } // namespace rckam
 
-#endif // #ifdef RCKAM_CAMERA_CAMERA_LIST_HPP
+#endif // #ifdef RCKAM_SERVER_CAMERA_LIST_HPP
 

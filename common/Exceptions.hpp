@@ -69,6 +69,14 @@ private:
 };
 
 /**
+ * \brief Eny gphoto2-related error, with explanation message
+ */
+class Gphoto2Exception : public std::runtime_error, public ExceptionData {
+public:
+  Gphoto2Exception(const std::string& message);
+};
+
+/**
  * \brief Exception thrown when there are problems with the IO operations
  */
 class IoException: public std::ios_base::failure, public ExceptionData

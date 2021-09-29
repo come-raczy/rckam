@@ -12,15 +12,15 @@
   ** <https://fsf.org/>
   **/
 
-#ifndef RCKAM_CAMERA_CAPTURE_CARD_HPP
-#define RCKAM_CAMERA_CAPTURE_CARD_HPP
+#ifndef RCKAM_SERVER_CAPTURE_CARD_HPP
+#define RCKAM_SERVER_CAPTURE_CARD_HPP
 
 #include <vector>
 #include <string>
 
 namespace rckam
 {
-namespace camera
+namespace server
 {
 
 /**
@@ -57,8 +57,8 @@ protected:
   std::vector<std::string> devNodes_;
 };
 
-} // namespace camera
+} // namespace server
 } // namespace rckam
 
-#endif // #ifndef RCKAM_CAMERA_CAPTURE_CARD_HPP
+#endif // #ifndef RCKAM_SERVER_CAPTURE_CARD_HPP
 

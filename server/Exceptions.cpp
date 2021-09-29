@@ -19,7 +19,7 @@
 
 namespace rckam
 {
-namespace camera
+namespace server
 {
 
 ExceptionData::ExceptionData(int errorNumber, const std::string& message)
@@ -43,6 +43,6 @@ Gphoto2Exception::Gphoto2Exception(const std::string& message)
 {
 }
 
-} // namespace camera
+} // namespace server
 } // namespace rckam
 

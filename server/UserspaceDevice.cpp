@@ -23,7 +23,7 @@
 
 namespace rckam
 {
-namespace camera
+namespace server
 {
 
 // UserspaceDevice::UserspaceDevice(const std::string &path)
@@ -206,6 +206,6 @@ std::string UserspaceDevice::sysType() const
   return sysName_.substr(0, sysName_.length() - sysNum_.length());
 }
 
-} // namespace camera
+} // namespace server
 } // namespace rckam
 

@@ -17,11 +17,11 @@
 #include <iostream>
 #include <boost/format.hpp>
 
-#include "Exceptions.hpp"
+#include "common/Exceptions.hpp"
 
 namespace rckam
 {
-namespace camera
+namespace server
 {
 
 Camera::Camera(const char *model, const char *port, Gphoto2Context &context)
@@ -32,7 +32,7 @@ Camera::Camera(const char *model, const char *port, Gphoto2Context &context)
   if (GP_OK != ret1)
   {
     auto message = boost::format("ERROR: failed to initialize a camera object: %i") % ret1;
-    BOOST_THROW_EXCEPTION(Gphoto2Exception(message.str()));
+    BOOST_THROW_EXCEPTION(common::Gphoto2Exception(message.str()));
   }
   setAbilities(model);
   setPortInfo(port);
@@ -50,7 +50,7 @@ unsigned long int Camera::capturePreview(CameraFile &cameraFile)
   if (GP_OK != ret1)
   {
     auto message = boost::format("ERROR: failed to capture preview: %i") % ret1;
-    BOOST_THROW_EXCEPTION(Gphoto2Exception(message.str()));
+    BOOST_THROW_EXCEPTION(common::Gphoto2Exception(message.str()));
   }
   const char *data = nullptr;
   unsigned long int size;
@@ -58,7 +58,7 @@ unsigned long int Camera::capturePreview(CameraFile &cameraFile)
   if (GP_OK != ret2)
   {
     auto message = boost::format("ERROR: failed to get data and size from camera file: %i") % ret2;
-    BOOST_THROW_EXCEPTION(Gphoto2Exception(message.str()));
+    BOOST_THROW_EXCEPTION(common::Gphoto2Exception(message.str()));
   }
   return size;
 }
@@ -71,13 +71,13 @@ void Camera::setAbilities(const char *model)
   if (GP_OK > ret1)
   {
     auto message = boost::format("ERROR: failed to get abilities for camera %s: %i") % model % ret1;
-    BOOST_THROW_EXCEPTION(Gphoto2Exception(message.str()));
+    BOOST_THROW_EXCEPTION(common::Gphoto2Exception(message.str()));
   }
   const auto ret2 = gp_camera_set_abilities (camera_, abilities);
   if (GP_OK > ret2)
   {
     auto message = boost::format("ERROR: failed to set abilities for camera %s: %i") % model % ret2;
-    BOOST_THROW_EXCEPTION(Gphoto2Exception(message.str()));
+    BOOST_THROW_EXCEPTION(common::Gphoto2Exception(message.str()));
   }
 }
 
@@ -91,13 +91,13 @@ CameraAbilitiesList *Camera::abilitiesList(Gphoto2Context &context)
     if (GP_OK > ret1)
     {
       auto message = boost::format("ERROR: Failed to create a new abilities list: %i") % ret1;
-      BOOST_THROW_EXCEPTION(Gphoto2Exception(message.str()));
+      BOOST_THROW_EXCEPTION(common::Gphoto2Exception(message.str()));
     }
     auto ret2 = gp_abilities_list_load (abilitiesList_, context);
     if (GP_OK > ret2)
     {
         auto message = boost::format("ERROR: Failed to load abilities list: %i") % ret2;
-        BOOST_THROW_EXCEPTION(Gphoto2Exception(message.str()));
+        BOOST_THROW_EXCEPTION(common::Gphoto2Exception(message.str()));
     }
   }
   return abilitiesList_;
@@ -109,7 +109,7 @@ int Camera::driverIndex(const char *model, Gphoto2Context &context)
   if (GP_OK > index)
   {
     auto message = boost::format("ERROR: Failed to find driver for camera %s: %i") % model % index;
-    BOOST_THROW_EXCEPTION(Gphoto2Exception(message.str()));
+    BOOST_THROW_EXCEPTION(common::Gphoto2Exception(message.str()));
   }
   return index;
 }
@@ -123,19 +123,19 @@ GPPortInfoList *Camera::portInfoList()
     if (GP_OK > ret1)
     {
       auto message = boost::format("ERROR: failed to create new port info list: %i") % ret1;
-      BOOST_THROW_EXCEPTION(Gphoto2Exception(message.str()));
+      BOOST_THROW_EXCEPTION(common::Gphoto2Exception(message.str()));
     }
     const auto ret2 = gp_port_info_list_load (portInfoList_);
     if (GP_OK > ret2)
     {
       auto message = boost::format("ERROR: failed to load port info list: %i") % ret2;
-      BOOST_THROW_EXCEPTION(Gphoto2Exception(message.str()));
+      BOOST_THROW_EXCEPTION(common::Gphoto2Exception(message.str()));
     }
     const auto ret3 = gp_port_info_list_count (portInfoList_);
     if (0 > ret3)
     {
         auto message = boost::format("ERROR: failed to count the number of ports: %i") % ret3;
-        BOOST_THROW_EXCEPTION(Gphoto2Exception(message.str()));
+        BOOST_THROW_EXCEPTION(common::Gphoto2Exception(message.str()));
     }
   }
   return portInfoList_;
@@ -147,7 +147,7 @@ void Camera::setPortInfo(const char *port)
   if (GP_OK > ret1)
   {
     auto message = boost::format("ERROR: failed to lookup path for port '%s' (use 'gphoto2 --list-ports'): %i") % port % ret1;
-    BOOST_THROW_EXCEPTION(Gphoto2Exception(message.str()));
+    BOOST_THROW_EXCEPTION(common::Gphoto2Exception(message.str()));
   }
   const auto index = ret1;
   GPPortInfo portInfo;
@@ -155,17 +155,17 @@ void Camera::setPortInfo(const char *port)
   if (GP_OK > ret2)
   {
     auto message = boost::format("ERROR: failed to get port info for port '%s': %i") % port % ret2;
-    BOOST_THROW_EXCEPTION(Gphoto2Exception(message.str()));
+    BOOST_THROW_EXCEPTION(common::Gphoto2Exception(message.str()));
   }
   const auto ret3 = gp_camera_set_port_info (camera_, portInfo);
   if (GP_OK > ret3)
   {
     auto message = boost::format("ERROR: failed to set camera port info for port '%s': %i") % port % ret3;
-    BOOST_THROW_EXCEPTION(Gphoto2Exception(message.str()));
+    BOOST_THROW_EXCEPTION(common::Gphoto2Exception(message.str()));
   }
 }
 
-} // namespace camera
+} // namespace server
 } // namespace rckam
 
 

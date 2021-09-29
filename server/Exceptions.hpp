@@ -12,8 +12,8 @@
  ** <https://fsf.org/>
  **/
 
-#ifndef RCKAM_CAMERA_EXCEPTIONS_HPP
-#define RCKAM_CAMERA_EXCEPTIONS_HPP
+#ifndef RCKAM_SERVER_EXCEPTIONS_HPP
+#define RCKAM_SERVER_EXCEPTIONS_HPP
 
 #include <boost/cerrno.hpp>
 #include <boost/exception/all.hpp>
@@ -25,7 +25,7 @@
 
 namespace rckam
 {
-namespace camera
+namespace server
 {
 
 /**
@@ -79,8 +79,8 @@ public:
   Gphoto2Exception(const std::string& message);
 };
 
-} // namespace camera
+} // namespace server
 } // namespace rckam
 
-#endif // #ifndef RCKAM_CAMERA_EXCEPTIONS_HPP
+#endif // #ifndef RCKAM_SERVER_EXCEPTIONS_HPP
 

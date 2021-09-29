@@ -31,7 +31,7 @@
 
 namespace rckam
 {
-namespace camera
+namespace server
 {
 
 RckamCameraOptions::RckamCameraOptions()
@@ -216,6 +216,6 @@ void RckamCameraOptions::postProcess(bpo::variables_map&)
   // nothing at the moment
 }
 
-} // namespace camera
+} // namespace server
 } // namespace rckam
 

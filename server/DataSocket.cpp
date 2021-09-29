@@ -16,10 +16,10 @@
 
 namespace rckam
 {
-namespace camera
+namespace server
 {
 
 
-} // namespace camera
+} // namespace server
 } // namespace rckam
 

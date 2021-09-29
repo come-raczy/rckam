@@ -28,12 +28,12 @@
 
 #include "common/Debug.hpp"
 #include "common/Rckam.hpp"
-#include "camera/Exceptions.hpp"
-#include "camera/CameraList.hpp"
+#include "common/Exceptions.hpp"
+#include "server/CameraList.hpp"
 
 namespace rckam
 {
-namespace camera
+namespace server
 {
 
 CameraController::CameraController(const char * const model, const char * const usbPort, const unsigned dataPort, const unsigned controlPort, Gphoto2Context &context)
@@ -157,6 +157,7 @@ std::string CameraController::commandNotSupported()
 
 void CameraController::run()
 {
+  using common::RckamException;
   // wait for the connection - TCP
   // acceptor_.accept(socket_);
   // wait for the connection - UDP
@@ -242,6 +243,7 @@ void CameraController::transferDataWrapper()
 
 void CameraController::transferData()
 {
+  using common::RckamException;
   constexpr boost::asio::socket_base::message_flags FLAGS = 0;
   unsigned index = 0;
   unsigned currentImageId = 0;
@@ -328,6 +330,7 @@ void CameraController::transferData()
 
 void CameraController::startHdmiCapture()
 {
+  using common::RckamException;
   // NOTE: for more information and examplese:
   // * https://kernel.readthedocs.io/en/latest/media/uapi/v4l/capture-example.html
   // * https://gist.github.com/maxlapshin/1253534
@@ -426,6 +429,6 @@ void CameraController::stopHdmiCapture()
   stopHdmiCapture_ = true;
 }
 
-} // namespace camera
+} // namespace server
 } // namespace rckam
 

@@ -12,8 +12,8 @@
  ** <https://fsf.org/>
  **/
 
-#ifndef RCKAM_CAMERA_CAMERA_FILE_HPP
-#define RCKAM_CAMERA_CAMERA_FILE_HPP
+#ifndef RCKAM_SERVER_CAMERA_FILE_HPP
+#define RCKAM_SERVER_CAMERA_FILE_HPP
 
 #include <tuple>
 #include <iostream>
@@ -21,7 +21,7 @@
 
 namespace rckam
 {
-namespace camera
+namespace server
 {
 
 class CameraFile
@@ -40,8 +40,8 @@ private:
 
 std::ostream &operator <<(std::ostream &os, CameraFile &cameraFile);
 
-} // namespace camera
+} // namespace server
 } // namespace rckam
 
-#endif // #ifdef RCKAM_CAMERA_CAMERA_FILE_HPP
+#endif // #ifdef RCKAM_SERVER_CAMERA_FILE_HPP
 

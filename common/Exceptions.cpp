@@ -40,6 +40,11 @@ IoException::IoException(int errorNumber, const std::string &message)
 {
 }
 
+Gphoto2Exception::Gphoto2Exception(const std::string& message)
+  : std::runtime_error(message), ExceptionData(EIO, message)
+{
+}
+
 GtkmmException::GtkmmException(int errorNumber, const std::string &message)
     : std::ios_base::failure(message)
     , ExceptionData(errorNumber, message)

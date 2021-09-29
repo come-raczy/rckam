@@ -25,7 +25,7 @@
 
 int main(int argc, char *argv[])
 {
-  namespace rt = rckam::camera;
+  namespace rt = rckam::server;
   // process commandline options
   rt::RckamCameraOptions options;
   const auto action = options.parse(argc, argv);
@@ -44,11 +44,11 @@ int main(int argc, char *argv[])
     return -1;
   }
   assert(rt::RckamCameraOptions::RUN == action);
-  rckam::camera::Gphoto2Context context;
+  rckam::server::Gphoto2Context context;
   try
   {
 
-const auto captureCards = rckam::camera::CaptureCard::detect();
+const auto captureCards = rckam::server::CaptureCard::detect();
 for (const auto &card: captureCards)
 {
   std::cerr << card.card() << " (" << card.busInfo() << ")" << std::endl;
@@ -58,7 +58,7 @@ for (const auto &card: captureCards)
   }
 }
 
-    rckam::camera::CameraList cameraList(context);
+    rckam::server::CameraList cameraList(context);
     if (0 < cameraList.count())
     {
       for (unsigned i = 0; i < cameraList.count(); ++i)
@@ -69,7 +69,7 @@ for (const auto &card: captureCards)
       const auto model = cameraList.model(selected);
       const auto usbPort = cameraList.port(selected);
       //rckam::camera::Camera camera(cameraList.name(selected), cameraList.value(selected), context);
-      rckam::camera::CameraController controller(model, usbPort, rckam::common::dataPort, rckam::common::controlPort, context);
+      rckam::server::CameraController controller(model, usbPort, rckam::common::dataPort, rckam::common::controlPort, context);
       controller.run();
     }
     else

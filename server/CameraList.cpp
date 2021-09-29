@@ -18,11 +18,11 @@
 #include <boost/format.hpp>
 #include <gphoto2/gphoto2-camera.h>
 
-#include "Exceptions.hpp"
+#include "common/Exceptions.hpp"
 
 namespace rckam
 {
-namespace camera
+namespace server
 {
 
 CameraList::CameraList(Gphoto2Context &context)
@@ -33,14 +33,14 @@ CameraList::CameraList(Gphoto2Context &context)
   if (GP_OK != ret)
   {
     auto message = boost::format("ERROR: failed to greate the camera list: %i") % ret;
-    BOOST_THROW_EXCEPTION(Gphoto2Exception(message.str()));
+    BOOST_THROW_EXCEPTION(common::Gphoto2Exception(message.str()));
   }
   gp_list_reset (cameraList_);
   const auto ret2 = gp_camera_autodetect (cameraList_, context);
   if (GP_OK > count_)
   {
     auto message = boost::format("ERROR: failed to autodetect cameras: %i") % count_;
-    BOOST_THROW_EXCEPTION(Gphoto2Exception(message.str()));
+    BOOST_THROW_EXCEPTION(common::Gphoto2Exception(message.str()));
   }
   assert(0 <= ret2);
   count_ = static_cast<unsigned>(ret2);
@@ -71,7 +71,7 @@ const char * CameraList::port(const unsigned i) const
   return tmp;
 }
 
-} // namespace camera
+} // namespace server
 } // namespace rckam
 
 

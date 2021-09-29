@@ -12,14 +12,14 @@
  ** <https://fsf.org/>
  **/
 
-#ifndef RCKAM_CAMERA_GPHOTO2_CONTEXT_HPP
-#define RCKAM_CAMERA_GPHOTO2_CONTEXT_HPP
+#ifndef RCKAM_SERVER_GPHOTO2_CONTEXT_HPP
+#define RCKAM_SERVER_GPHOTO2_CONTEXT_HPP
 
 #include <gphoto2/gphoto2-context.h>
 
 namespace rckam
 {
-namespace camera
+namespace server
 {
 
 class Gphoto2Context
@@ -34,7 +34,7 @@ private:
   unsigned refCount_;
 };
 
-} // namespace camera
+} // namespace server
 } // namespace rckam
 
-#endif // #ifndef RCKAM_CAMERA_GPHOTO2_CONTEXT_HPP
+#endif // #ifndef RCKAM_SERVER_GPHOTO2_CONTEXT_HPP

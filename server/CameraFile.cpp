@@ -17,11 +17,11 @@
 #include <boost/format.hpp>
 #include <gphoto2/gphoto2-port-result.h>
 
-#include "Exceptions.hpp"
+#include "common/Exceptions.hpp"
 
 namespace rckam
 {
-namespace camera
+namespace server
 {
 
 CameraFile::CameraFile()
@@ -31,7 +31,7 @@ CameraFile::CameraFile()
   if (GP_OK != ret1)
   {
     auto message = boost::format("ERROR: Failed to create new camera file: %i") % ret1;
-    BOOST_THROW_EXCEPTION(Gphoto2Exception(message.str()));
+    BOOST_THROW_EXCEPTION(common::Gphoto2Exception(message.str()));
   }
 }
 
@@ -53,7 +53,7 @@ std::tuple<const char *, unsigned long int> CameraFile::getDataAndSize()
   if (GP_OK != ret1)
   {
     auto message = boost::format("ERROR: failed to get data and size from camera file: %i") % ret1;
-    BOOST_THROW_EXCEPTION(Gphoto2Exception(message.str()));
+    BOOST_THROW_EXCEPTION(common::Gphoto2Exception(message.str()));
   }
   return std::tuple<const char *, unsigned long int>(data, size);
 }
@@ -67,6 +67,6 @@ std::ostream &operator <<(std::ostream &os, CameraFile &cameraFile)
   return os;
 }
 
-} // namespace camera
+} // namespace server
 } // namespace rckam
 

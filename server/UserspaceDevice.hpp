@@ -12,15 +12,15 @@
   ** <https://fsf.org/>
   **/
 
-#ifndef RCKAM_CAMERA_USERSPACE_DEVICE_HPP
-#define RCKAM_CAMERA_USERSPACE_DEVICE_HPP
+#ifndef RCKAM_SERVER_USERSPACE_DEVICE_HPP
+#define RCKAM_SERVER_USERSPACE_DEVICE_HPP
 
 #include <vector>
 #include <string>
 
 namespace rckam
 {
-namespace camera
+namespace server
 {
 
 /**
@@ -83,8 +83,8 @@ protected:
   std::vector<Sysattr> sysattrs_;
 };
 
-} // namespace camera
+} // namespace server
 } // namespace rckam
 
-#endif // #ifndef RCKAM_CAMERA_USERSPACE_DEVICE_HPP
+#endif // #ifndef RCKAM_SERVER_USERSPACE_DEVICE_HPP
 
