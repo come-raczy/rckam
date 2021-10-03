@@ -36,9 +36,9 @@ namespace rckam
 namespace server
 {
 
-CameraController::CameraController(const char * const model, const char * const usbPort, const unsigned dataPort, const unsigned controlPort, Gphoto2Context &context)
+CameraController::CameraController(/*const char * const model, const char * const usbPort,*/ const unsigned dataPort,/* const unsigned controlPort,*/ Gphoto2Context &context)
 : context_(&context)
-, camera_(model, usbPort, context)
+//, camera_(model, usbPort, context)
 //, dataSocket_()
 //, io_service_()
 //, acceptor_(io_service_, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), dataPort))
@@ -46,22 +46,23 @@ CameraController::CameraController(const char * const model, const char * const 
 //, resolver_(io_context_)
 , io_context_()
 , socket_(io_context_, boost::asio::ip::udp::endpoint(boost::asio::ip::udp::v4(), dataPort))
-, controlPort_(controlPort)
-, stopControl_(false)
-, controlThread_(&CameraController::controlWrapper, this)
+//, controlPort_(controlPort)
+//, stopControl_(false)
+//, controlThread_(&CameraController::controlWrapper, this)
 //, communicationSocket_()
 {
 }
 
 CameraController::~CameraController()
 {
-  stopControl_ = true;
-  if (controlThread_.joinable())
-  {
-    controlThread_.join();
-  }
+//  stopControl_ = true;
+//  if (controlThread_.joinable())
+//  {
+//    controlThread_.join();
+//  }
 }
 
+#if 0
 void CameraController::controlWrapper()
 {
   try
@@ -133,6 +134,13 @@ void CameraController::sendResponse(boost::asio::ip::tcp::socket &socket, const 
   }
 }
 
+std::string CameraController::commandNotSupported()
+{
+  static const std::string response{0,common::ResponseCode::NOT_SUPPORTED};
+  return response;
+}
+#endif
+
 std::string CameraController::listCameras()
 {
   std::string response;
@@ -149,12 +157,7 @@ std::string CameraController::listCameras()
   return response;
 }
 
-std::string CameraController::commandNotSupported()
-{
-  static const std::string response{0,common::ResponseCode::NOT_SUPPORTED};
-  return response;
-}
-
+#if 0
 void CameraController::run()
 {
   using common::RckamException;
@@ -222,6 +225,7 @@ void CameraController::run()
     dataTransferThread.join();
   }
 }
+#endif
 
 void CameraController::transferDataWrapper()
 {

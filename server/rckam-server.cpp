@@ -14,37 +14,43 @@
 
 #include <memory>
 #include <iostream>
-#include <gphoto2/gphoto2-camera.h>
+//#include <gphoto2/gphoto2-camera.h>
 
-#include "RckamCameraOptions.hpp"
-#include "Gphoto2Context.hpp"
-#include "CameraList.hpp"
-#include "CameraController.hpp"
-#include "CaptureCard.hpp"
+#include "RckamServerOptions.hpp"
+//#include "Gphoto2Context.hpp"
+//#include "CameraList.hpp"
+//#include "CameraController.hpp"
+
+
 #include "common/Rckam.hpp"
+#include "common/Debug.hpp"
+#include "common/Exceptions.hpp"
+#include "Server.hpp"
+
+#include "CaptureCard.hpp"
 
 int main(int argc, char *argv[])
 {
   namespace rt = rckam::server;
   // process commandline options
-  rt::RckamCameraOptions options;
+  rt::RckamServerOptions options;
   const auto action = options.parse(argc, argv);
-  if (rt::RckamCameraOptions::HELP == action)
+  if (rt::RckamServerOptions::HELP == action)
   {
     std::cout << options.usage() << std::endl;
     return 0;
   }
-  else if (rt::RckamCameraOptions::VERSION == action)
+  else if (rt::RckamServerOptions::VERSION == action)
   {
     std::cout << options.version() << std::endl;
     return 0;
   }
-  else if (rt::RckamCameraOptions::ABORT == action)
+  else if (rt::RckamServerOptions::ABORT == action)
   {
     return -1;
   }
-  assert(rt::RckamCameraOptions::RUN == action);
-  rckam::server::Gphoto2Context context;
+  assert(rt::RckamServerOptions::RUN == action);
+//  rckam::server::Gphoto2Context context;
   try
   {
 
@@ -58,6 +64,10 @@ for (const auto &card: captureCards)
   }
 }
 
+    rckam::server::Server server(rckam::common::controlPort, rckam::common::dataPort);
+    server.run();
+
+#if 0
     rckam::server::CameraList cameraList(context);
     if (0 < cameraList.count())
     {
@@ -76,9 +86,20 @@ for (const auto &card: captureCards)
     {
       std::cerr << "WARNING: no camera detected. Exiting." << std::endl;
     }
+#endif
+
+  }
+  catch (rckam::common::ExceptionData &exception)
+  {
+    RCKAM_THREAD_CERR << "ERROR: rckam exception: " << exception.getErrorNumber() << ": " << exception.getMessage() << std::endl;
+  }
+  catch (std::exception &exception)
+  {
+    RCKAM_THREAD_CERR << "ERROR: exception: " << exception.what() << std::endl;
   }
   catch (...)
   {
+    RCKAM_THREAD_CERR << "ERROR: unknown exception" << std::endl;
   }
 }
 

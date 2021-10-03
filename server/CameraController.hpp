@@ -33,8 +33,10 @@ namespace server
 class CameraController
 {
 public:
-  CameraController(const char *model, const char *usbPort, unsigned dataPort, unsigned controlPort, Gphoto2Context &context);
+  CameraController(/*const char *model, const char *usbPort,*/ unsigned dataPort, /*unsigned controlPort,*/ Gphoto2Context &context);
   ~CameraController();
+  /// list available cameras
+  std::string listCameras();
   /// operate the camera
   void run();
   void stopPreview();
@@ -51,7 +53,7 @@ public:
 private:
   Gphoto2Context *context_;
   /// the underlying gphoto2 camera
-  Camera camera_;
+  //Camera camera_;
   /// the socket to transmit data (image previews)
   //DataSocket dataSocket_;
   // io service for TCP sockets
@@ -60,7 +62,7 @@ private:
   boost::asio::io_context io_context_;
   boost::asio::ip::udp::socket socket_;
   boost::asio::ip::udp::endpoint remoteEndpoint_;
-  unsigned controlPort_;
+  //unsigned controlPort_;
   /// acceptor for TCP connections
   //boost::asio::io_service ioService_;
   //boost::asio::ip::tcp::acceptor controlAcceptor_;
@@ -73,17 +75,16 @@ private:
   std::array<bool, 2> cameraFilesEmpty_;
   bool stopPreview_;
   std::exception_ptr transferDataException_;
-  bool stopControl_;
-  std::thread controlThread_;
-  std::exception_ptr controlException_;
+//  bool stopControl_;
+//  std::thread controlThread_;
+//  std::exception_ptr controlException_;
   bool stopHdmiCapture_;
   void transferData();
   void transferDataWrapper();
-  void control();
-  void controlWrapper();
-  void sendResponse(boost::asio::ip::tcp::socket &socket, const std::string &&data);
-  std::string listCameras();
-  std::string commandNotSupported();
+//  void control();
+//  void controlWrapper();
+//  void sendResponse(boost::asio::ip::tcp::socket &socket, const std::string &&data);
+//  std::string commandNotSupported();
 };
 
 } // namespace server

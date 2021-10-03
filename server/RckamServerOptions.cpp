@@ -12,7 +12,7 @@
  ** <https://fsf.org/>
  **/
 
-#include "RckamCameraOptions.hpp"
+#include "RckamServerOptions.hpp"
 
 #include <iostream>
 #include <fstream>
@@ -34,7 +34,7 @@ namespace rckam
 namespace server
 {
 
-RckamCameraOptions::RckamCameraOptions()
+RckamServerOptions::RckamServerOptions()
 {
   namedOptions_.add_options()("help,h", "produce help message and exit");
   namedOptions_.add_options()(
@@ -48,7 +48,7 @@ RckamCameraOptions::RckamCameraOptions()
     "port",  bpo::value<unsigned>(&port)->default_value(port), "port to use");
 }
 
-RckamCameraOptions::Action RckamCameraOptions::parse(int argc, const char* const argv[])
+RckamServerOptions::Action RckamServerOptions::parse(int argc, const char* const argv[])
 {
   argc_ = argc;
   argv_ = argv;
@@ -123,7 +123,7 @@ bool compareOptionName(
   return left->long_name() < right->long_name();
 }
 
-std::string RckamCameraOptions::usage() const
+std::string RckamServerOptions::usage() const
 {
   OptionDescriptionPtrs sortedOptions = namedOptions_.options();
   std::sort(sortedOptions.begin(), sortedOptions.end(), compareOptionName);
@@ -161,7 +161,7 @@ static unsigned short getTerminalColumns()
   return ws_col;
 }
 
-std::string RckamCameraOptions::helpDefaults(const OptionDescriptionPtrs& sortedOptions) const
+std::string RckamServerOptions::helpDefaults(const OptionDescriptionPtrs& sortedOptions) const
 {
   std::string ret;
   BOOST_FOREACH (const OptionDescriptionPtr& odPtr, sortedOptions) {
@@ -170,7 +170,7 @@ std::string RckamCameraOptions::helpDefaults(const OptionDescriptionPtrs& sorted
   return ret;
 }
 
-std::string RckamCameraOptions::help(const OptionDescriptionPtrs& sortedOptions, const bool markdown) const
+std::string RckamServerOptions::help(const OptionDescriptionPtrs& sortedOptions, const bool markdown) const
 {
   std::ostringstream os;
   if (!markdown) {
@@ -211,7 +211,7 @@ std::string RckamCameraOptions::help(const OptionDescriptionPtrs& sortedOptions,
   return os.str();
 }
 
-void RckamCameraOptions::postProcess(bpo::variables_map&)
+void RckamServerOptions::postProcess(bpo::variables_map&)
 {
   // nothing at the moment
 }

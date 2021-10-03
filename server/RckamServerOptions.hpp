@@ -29,12 +29,12 @@ namespace server
 
 namespace bpo = boost::program_options;
 
-class RckamCameraOptions : boost::noncopyable
+class RckamServerOptions : boost::noncopyable
 {
 public:
   enum Action { RUN, HELP, VERSION, ABORT };
-  RckamCameraOptions();
-  virtual ~RckamCameraOptions() {}
+  RckamServerOptions();
+  virtual ~RckamServerOptions() {}
   Action             parse(int argc, const char* const argv[]);
   std::string        usage() const;
   int                argc() const { return argc_; }
@@ -47,7 +47,7 @@ public:
   }
 
   bool exists(const std::string& opt) const { return vm_.count(opt); }
-  static std::string version() { return std::string(std::string("rckam-camera version ") + STRINGIFY(RCKAM_VERSION) + "-" + STRINGIFY(VERSION_STRING)); }
+  static std::string version() { return std::string(std::string("rckam-server version ") + STRINGIFY(RCKAM_VERSION) + "-" + STRINGIFY(VERSION_STRING)); }
 
   /// port to use
   unsigned port = 11005;
@@ -64,7 +64,7 @@ protected:
   std::string help(const OptionDescriptionPtrs& options, const bool markdown) const;
 
 private:
-  std::string usagePrefix() const {return "rckam-camera [options]";}
+  std::string usagePrefix() const {return "rckam-server [options]";}
   std::string usageSuffix() const { return ""; }
   void        postProcess(bpo::variables_map&);
 
