@@ -12,7 +12,7 @@
  ** <https://fsf.org/>
  **/
 
-#include "client/RckamOptions.hpp"
+#include "client/RckamClientOptions.hpp"
 
 namespace rckam
 {
@@ -24,7 +24,7 @@ namespace bfs = boost::filesystem;
 using common::InvalidOptionException;
 using boost::format;
 
-RckamOptions::RckamOptions()
+RckamClientOptions::RckamClientOptions()
 {
   //unnamedOptions_.add_client()
   //    ("some-option"   , bpo::value<int>(&someValue)->default_value(someValue),
@@ -43,7 +43,7 @@ RckamOptions::RckamOptions()
 /**
  * \brief remembers the original argv array and hands over to the base implementation
  */
-common::Options::Action RckamOptions::parse(int argc, char *argv[])
+common::Options::Action RckamClientOptions::parse(int argc, char *argv[])
 {
   const std::vector<std::string> allOptions(argv, argv + argc);
   RCKAM_THREAD_CERR << "Version: " << rckam_VERSION_FULL << std::endl;
@@ -53,7 +53,7 @@ common::Options::Action RckamOptions::parse(int argc, char *argv[])
   return ret;
 }
 
-void RckamOptions::postProcess(bpo::variables_map &vm)
+void RckamClientOptions::postProcess(bpo::variables_map &vm)
 {
   if(vm.count("help") ||  vm.count("version"))
   {

@@ -18,8 +18,9 @@
 #include <gtkmm/application.h>
 #include <gtkmm/window.h>
 
-#include "RckamOptions.hpp"
+#include "RckamClientOptions.hpp"
 #include "MainWindow.hpp"
+#include "Client.hpp"
 
 namespace rckam
 {
@@ -29,10 +30,10 @@ namespace client
 class Application: public Gtk::Application
 {
 protected:
-  Application(const RckamOptions &options);
+  Application(const RckamClientOptions &options);
   ~Application();
 public:
-  static Glib::RefPtr<Application> create(const RckamOptions &options);
+  static Glib::RefPtr<Application> create(const RckamClientOptions &options);
   int run();
 protected:
   // Override default signal handlers:
@@ -40,6 +41,7 @@ protected:
   void on_open(const Gio::Application::type_vec_files& files, const Glib::ustring& hint) override;
 private:
   void on_hide_window(Gtk::Window* window);
+  rckam::client::Client client_;
   rckam::client::MainWindow *mainWindow_;
 };
 

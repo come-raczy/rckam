@@ -12,13 +12,13 @@
  ** <https://fsf.org/>
  **/
 
-#ifndef RCKAM_CLIENT_SERVER_HPP
-#define RCKAM_CLIENT_SERVER_HPP
+#ifndef RCKAM_CLIENT_CLIENT_HPP
+#define RCKAM_CLIENT_CLIENT_HPP
 
 #include <vector>
 #include <boost/system/error_code.hpp>
 
-#include "client/RckamOptions.hpp"
+#include "client/RckamClientOptions.hpp"
 #include "client/CameraInfo.hpp"
 
 namespace rckam
@@ -36,11 +36,11 @@ namespace client
  ** - mount command
  ** 
  **/
-class Server
+class Client
 {
 public:
-  Server(const RckamOptions &options);
-  ~Server();
+  Client(const RckamClientOptions &options);
+  ~Client();
   const std::string &ipAddress() const;
   void setIpAddress(const std::string &ipAddress);
   unsigned dataPort() const;
@@ -60,5 +60,5 @@ private:
 } // namespace client
 } // namespace rckam
 
-#endif // #ifndef RCKAM_CLIENT_SERVER_HPP
+#endif // #ifndef RCKAM_CLIENT_CLIENT_HPP
 

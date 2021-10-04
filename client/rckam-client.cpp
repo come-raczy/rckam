@@ -20,19 +20,19 @@
 
 #include "common/Debug.hpp"
 #include "common/Exceptions.hpp"
-#include "client/RckamOptions.hpp"
+#include "client/RckamClientOptions.hpp"
 #include "client/Application.hpp"
 #include "client/MainWindow.hpp"
 #include "client/ImagePreview.hpp"
 
-void rckamClient(const rckam::client::RckamOptions &options);
+void rckamClient(const rckam::client::RckamClientOptions &options);
 
 int main(int argc, char *argv[])
 {
   rckam::common::run(rckamClient, argc, argv);
 }
 
-void rckamClient(const rckam::client::RckamOptions &options)
+void rckamClient(const rckam::client::RckamClientOptions &options)
 {
 #if 0
 std::cerr << "builder..." << std::endl;

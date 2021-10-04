@@ -26,8 +26,9 @@ namespace rckam
 namespace client
 {
 
-Application::Application(const RckamOptions &options)
+Application::Application(const RckamClientOptions &options)
 : Gtk::Application("rckam.client.application", Gio::APPLICATION_HANDLES_OPEN)
+, client_(options)
 , mainWindow_(nullptr)
 {
   auto builder = Gtk::Builder::create();
@@ -54,13 +55,26 @@ Application::~Application()
   if (mainWindow_) delete mainWindow_;
 }
 
-Glib::RefPtr<Application> Application::create(const RckamOptions &options)
+Glib::RefPtr<Application> Application::create(const RckamClientOptions &options)
 {
   return Glib::RefPtr<rckam::client::Application>(new Application(options));
 }
 
 int Application::run()
 {
+  using common::RckamException;
+  // configure the application state based on the state of the server
+  boost::system::error_code error;
+  const auto cameraList = client_.listCameras(error);
+  if (error)
+  {
+    RCKAM_THREAD_CERR << "ERROR: failed to retrieve list of cameras from the server: " << error.value() << ": " << error.message() << std::endl;
+    BOOST_THROW_EXCEPTION(RckamException(error.value(), "ERROR: failed to retrieve list of cameras from the server"));
+  }
+  for (const auto &camera: cameraList)
+  {
+    RCKAM_THREAD_CERR << "INFO: Camera: " << camera.model << "\t" << camera.port << std::endl;
+  }
   return  Gtk::Application::run(*mainWindow_);
 }
 

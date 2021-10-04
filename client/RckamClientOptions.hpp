@@ -19,8 +19,8 @@
  **
  **/
 
-#ifndef CLIENT_RCKAM_CLIENT_HPP
-#define CLIENT_RCKAM_CLIENT_HPP
+#ifndef RCKAM_CLIENT_RCKAM_CLIENT_OPTIONS_HPP
+#define RCKAM_CLIENT_RCKAM_CLIENT_OPTIONS_HPP
 
 #include <string>
 #include <boost/filesystem.hpp>
@@ -34,16 +34,16 @@ namespace rckam
 namespace client
 {
 
-class RckamOptions : public common::Options
+class RckamClientOptions : public common::Options
 {
 public:
-  RckamOptions();
+  RckamClientOptions();
   common::Options::Action parse(int argc, char *argv[]);
   std::string ipAddress;
   unsigned dataPort = common::dataPort;
   unsigned controlPort = common::controlPort;
 private:
-  std::string usagePrefix() const {return "rckam -r <reference> -b <base calls> [optional arguments]";}
+  std::string usagePrefix() const {return "rckam-client -r <reference> -b <base calls> [optional arguments]";}
   void postProcess(boost::program_options::variables_map &vm);
 
 public:
@@ -53,4 +53,4 @@ public:
 } // namespace client
 } // namespace rckam
 
-#endif // #ifndef CLIENT_RCKAM_CLIENT_HPP
+#endif // #ifndef RCKAM_CLIENT_RCKAM_CLIENT_OPTIONS_HPP
