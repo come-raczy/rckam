@@ -47,6 +47,7 @@ enum ResponseCode
   LAST_CODE
 };
 
+constexpr size_t COMMAND_BUFFER_SIZE = 512;
 constexpr unsigned dataPort = 12345;
 constexpr unsigned controlPort = 12346;
 

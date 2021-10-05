@@ -14,6 +14,7 @@
 
 #include "Server.hpp"
 
+#include <array>
 #include <string>
 #include <boost/asio.hpp>
 
@@ -43,20 +44,26 @@ void Server::run()
   using common::ServerCommand;
   using namespace boost::asio;
   using ip::tcp;
+  RCKAM_THREAD_CERR << "INFO: listening for control requests on port " << controlPort_ << std::endl;
   io_service ioService;
   tcp::acceptor acceptor(ioService, tcp::endpoint(tcp::v4(), controlPort_));
-  tcp::socket socket(ioService);
   stop_ = false;
+  std::array<char, common::COMMAND_BUFFER_SIZE> buffer;
   while (!stop_)
   {
     boost::system::error_code error;
     // wait for a request
+    RCKAM_THREAD_CERR << "INFO: accepting requests..." << std::endl;
+    tcp::socket socket(ioService);
     acceptor.accept(socket);
-    boost::asio::streambuf buffer;
-    const unsigned count = boost::asio::read(socket, buffer, boost::asio::transfer_all(), error);
-    if(error)
+    RCKAM_THREAD_CERR << "INFO: reading data" << std::endl;
+    const auto count = boost::asio::read(socket, mutable_buffer(buffer.data(), buffer.size()), boost::asio::transfer_all(), error);
+    //ServerCommand command1;
+    //boost::asio::mutable_buffer buffer(reinterpret_cast<char *>(&command1), sizeof(command1));
+    //const unsigned count = boost::asio::read(socket, buffer);
+    if(error && (boost::asio::error::eof != error.value()))
     {
-      RCKAM_THREAD_CERR << "WARNING: error while reading the control socket: " << error.value() << error.message() << std::endl;
+      RCKAM_THREAD_CERR << "WARNING: error while reading the control socket: " << error.value() << ": " << error.message() << std::endl;
       continue;
     }
     if (sizeof(ServerCommand) > count)
@@ -65,13 +72,12 @@ void Server::run()
       RCKAM_THREAD_CERR << "WARNING: error while reading the control socket: message too short: received " << count << " bytes - ServerCommands is " << sizeof(ServerCommand) << " bytes" << std::endl;
       continue;
     }
-    std::string data(boost::asio::buffer_cast<const char*>(buffer.data()));
-    assert(data.size() > sizeof(ServerCommand));
-    const ServerCommand command = *(reinterpret_cast<ServerCommand *>(data.data()));
+    RCKAM_THREAD_CERR << "INFO: succesfully read " << count << " bytes of data" << std::endl;
+    const ServerCommand command = *(reinterpret_cast<ServerCommand *>(buffer.data()));
     switch (command)
     {
       case ServerCommand::ECHO_ONLY:
-        sendResponse(socket, std::move(data));
+        sendResponse(socket, std::string(buffer.data(), count));
         break;
       case ServerCommand::LIST_CAMERAS:
         sendResponse(socket, cameraController_.listCameras());
@@ -85,6 +91,7 @@ void Server::run()
 void Server::sendResponse(boost::asio::ip::tcp::socket &socket, const std::string &&data)
 {
   boost::system::error_code error;
+  RCKAM_THREAD_CERR << "INFO: sendResponse: " << data.size() << " bytes: " << data << std::endl;
   boost::asio::write(socket, boost::asio::buffer(data), error);
   if(error)
   {
