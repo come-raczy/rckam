@@ -52,32 +52,39 @@ void Server::run()
   while (!stop_)
   {
     boost::system::error_code error;
-    // wait for a request
     RCKAM_THREAD_CERR << "INFO: accepting requests..." << std::endl;
     tcp::socket socket(ioService);
     acceptor.accept(socket);
     RCKAM_THREAD_CERR << "INFO: reading data" << std::endl;
-    const auto count = boost::asio::read(socket, mutable_buffer(buffer.data(), buffer.size()), boost::asio::transfer_all(), error);
-    //ServerCommand command1;
-    //boost::asio::mutable_buffer buffer(reinterpret_cast<char *>(&command1), sizeof(command1));
-    //const unsigned count = boost::asio::read(socket, buffer);
+    // must specify the size of the data otherwise the read will block until the client closes the connection
+    const auto count = boost::asio::read(socket, mutable_buffer(buffer.data(), buffer.size()), boost::asio::transfer_exactly(sizeof(ServerCommand)), error);
     if(error && (boost::asio::error::eof != error.value()))
     {
       RCKAM_THREAD_CERR << "WARNING: error while reading the control socket: " << error.value() << ": " << error.message() << std::endl;
       continue;
     }
     if (sizeof(ServerCommand) > count)
-    //read operation
     {
       RCKAM_THREAD_CERR << "WARNING: error while reading the control socket: message too short: received " << count << " bytes - ServerCommands is " << sizeof(ServerCommand) << " bytes" << std::endl;
       continue;
     }
     RCKAM_THREAD_CERR << "INFO: succesfully read " << count << " bytes of data" << std::endl;
+    const auto available = socket.available();
+    if (available)
+    {
+      RCKAM_THREAD_CERR << "INFO: reading " << available << " additional bytes of data" << std::endl;
+      const auto count = boost::asio::read(socket, mutable_buffer(buffer.data(), buffer.size()), boost::asio::transfer_exactly(available), error);
+      if((error && (boost::asio::error::eof != error.value())) || (available != count))
+      {
+        RCKAM_THREAD_CERR << "WARNING: error while reading " << available << " bytes of additional data on the control socket: read " << count << " bytes: " << error.value() << ": " << error.message() << std::endl;
+        continue;
+      }
+    }
     const ServerCommand command = *(reinterpret_cast<ServerCommand *>(buffer.data()));
     switch (command)
     {
       case ServerCommand::ECHO_ONLY:
-        sendResponse(socket, std::string(buffer.data(), count));
+        sendResponse(socket, std::string(buffer.data(), count + available));
         break;
       case ServerCommand::LIST_CAMERAS:
         sendResponse(socket, cameraController_.listCameras());
