@@ -14,7 +14,11 @@
 
 #include "client/Client.hpp"
 
+#include <chrono>
+#include <thread>
 #include <boost/asio.hpp>
+
+#include "common/Rckam.hpp"
 
 namespace rckam
 {
@@ -86,6 +90,7 @@ std::vector<CameraInfo> Client::listCameras(boost::system::error_code error)
   return cameraList;
 }
 
+// TODO: add support for arguments to the command (a buffer)
 std::string Client::query(const common::ServerCommand command, boost::system::error_code error)
 {
   using namespace boost::asio;
@@ -106,37 +111,30 @@ std::string Client::query(const common::ServerCommand command, boost::system::er
     std::cerr << " " << (int)(*(reinterpret_cast<const char *>(cbuffer.data())+i));
   }
   std::cerr << std::endl;
-  //const size_t count  = boost::asio::write( socket, boost::asio::const_buffer(reinterpret_cast<const char *>(&command), sizeof(command)), error);
-  //const size_t count  = boost::asio::write( socket, cbuffer, boost::asio::transfer_all(), error);
-  const size_t count  = boost::asio::write( socket, cbuffer, boost::asio::transfer_all(), error);
+  const size_t sentCount  = boost::asio::write( socket, cbuffer, boost::asio::transfer_all(), error);
   if (error)
   {
     RCKAM_THREAD_CERR << "ERROR: failed to send command to the server: " << error.value() << ": " << error.message() << std::endl;
     return std::string();
   }
-  if (sizeof(command) != count)
+  if (sizeof(command) != sentCount)
   {
-    RCKAM_THREAD_CERR << "ERROR: failed to send " << sizeof(command) << " bytes to the server: " << count << " bytes sent" << std::endl;
+    RCKAM_THREAD_CERR << "ERROR: failed to send " << sizeof(command) << " bytes to the server: " << sentCount << " bytes sent" << std::endl;
     return std::string();
   }
-  RCKAM_THREAD_CERR << "INFO: successfully sent " << count << " bytes" << std::endl;
-#if 0
-  // TODO: fix the issue with buffer
-  boost::asio::streambuf buffer;
-  boost::asio::read(socket, buffer, boost::asio::transfer_all(), error);
+  RCKAM_THREAD_CERR << "INFO: successfully sent " << sentCount << " bytes" << std::endl;
+  std::array<char, common::COMMAND_BUFFER_SIZE> buffer;
+  const size_t receivedCount = boost::asio::read(socket, boost::asio::mutable_buffer(buffer.data(), buffer.size()), boost::asio::transfer_all(), error);
+  RCKAM_THREAD_CERR << "INFO: received " << receivedCount << " bytes from server" << std::endl;
   if(error && error != boost::asio::error::eof)
   {
     return std::string();
   }
   else
   {
-    std::istream is(&buffer);
-    std::string s;
-    is >> s;
+    std::string s(buffer.data(), receivedCount);
     return s;
   }
-#endif
-  return std::string();
 }
 
 } // namespace client
