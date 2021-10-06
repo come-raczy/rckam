@@ -16,7 +16,7 @@
 #define RCKAM_CLIENT_CLIENT_HPP
 
 #include <vector>
-#include <boost/system/error_code.hpp>
+#include <boost/system/error_code.hpp> // NOTE: boost::asio does not support std::error_code
 
 #include "client/RckamClientOptions.hpp"
 #include "client/CameraInfo.hpp"

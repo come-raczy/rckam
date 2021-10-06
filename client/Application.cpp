@@ -14,6 +14,7 @@
 
 #include "client/Application.hpp"
 
+#include <boost/system/error_code.hpp> // NOTE: boost::asio does not support std::error_code
 #include <gtkmm/builder.h>
 
 #include "common/Debug.hpp"

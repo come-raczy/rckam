@@ -18,6 +18,7 @@
 #include <filesystem>
 #include <fstream>
 #include <boost/format.hpp>
+#include <boost/system/error_code.hpp> // NOTE: boost::asio does not support std::error_code
 
 #include "common/Debug.hpp"
 #include "common/Exceptions.hpp"

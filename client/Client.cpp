@@ -124,8 +124,37 @@ std::string Client::query(const common::ServerCommand command, boost::system::er
   }
   RCKAM_THREAD_CERR << "INFO: successfully sent " << sentCount << " bytes" << std::endl;
   std::array<char, common::COMMAND_BUFFER_SIZE> buffer;
-  const size_t receivedCount = boost::asio::read(socket, boost::asio::mutable_buffer(buffer.data(), buffer.size()), boost::asio::transfer_all(), error);
-  RCKAM_THREAD_CERR << "INFO: received " << receivedCount << " bytes from server" << std::endl;
+  size_t receivedCount = 0;
+  boost::asio::mutable_buffer inputBuffer (buffer.data(), buffer.size());
+  boost::asio::async_read(socket, inputBuffer, [&](const boost::system::error_code& resultError, std::size_t count)
+  {
+    if (!error)
+    {
+      RCKAM_THREAD_CERR << "INFO: received " << count << " bytes from server" << std::endl;
+    }
+    else
+    {
+      RCKAM_THREAD_CERR << "ERROR: failed to receive data from server: " << count << " bytes received: " << error.value() << ": " << error.message() << std::endl;
+    }
+    error = resultError;
+    receivedCount = count;
+  });
+  io_service.restart();
+  const auto timeout = std::chrono::milliseconds(1000);
+  io_service.run_for(timeout);
+  if (!io_service.stopped())
+  {
+    RCKAM_THREAD_CERR << "ERROR: timeout while waiting for the server" << std::endl;
+    // Close the socket to cancel the outstanding asynchronous operation.
+    socket.close();
+    // Run the io_context again until the operation completes.
+    io_service.run();
+    if (!error)
+    {
+      error = make_error_code(boost::system::errc::timed_out);
+      //error = std::make_error(ETIMEDOUT);
+    }
+  }
   if(error && error != boost::asio::error::eof)
   {
     return std::string();
