@@ -19,6 +19,7 @@
 #include <boost/format.hpp>
 #include <chrono>
 #include <iomanip>
+#include <boost/system/error_code.hpp> // NOTE: boost::asio does not support boost::system::error_code
 #include <cerrno>
 
 #include <sys/mman.h>

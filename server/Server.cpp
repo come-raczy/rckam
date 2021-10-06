@@ -16,6 +16,7 @@
 
 #include <array>
 #include <string>
+#include <boost/system/error_code.hpp> // NOTE: boost::asio does not support boost::system::error_code
 #include <boost/asio.hpp>
 
 #include "common/Rckam.hpp"
