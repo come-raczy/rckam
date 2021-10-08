@@ -18,6 +18,7 @@
 #include <string>
 #include <boost/system/error_code.hpp> // NOTE: boost::asio does not support boost::system::error_code
 #include <boost/asio.hpp>
+#include <boost/algorithm/string.hpp>
 
 #include "common/Rckam.hpp"
 #include "common/Debug.hpp"
@@ -82,18 +83,72 @@ void Server::run()
       }
     }
     const ServerCommand command = *(reinterpret_cast<ServerCommand *>(buffer.data()));
-    switch (command)
+    const std::vector<std::string> arguments = parse(buffer.data() + sizeof(command), available);
+    try
     {
-      case ServerCommand::ECHO_ONLY:
-        sendResponse(socket, std::string(buffer.data(), count + available));
-        break;
-      case ServerCommand::LIST_CAMERAS:
-        sendResponse(socket, cameraController_.listCameras());
-        break;
-      default:
-        sendResponse(socket, commandNotSupported());
+      switch (command)
+      {
+        case ServerCommand::ECHO_ONLY:
+          sendResponse(socket, std::string(buffer.data(), count + available));
+          break;
+        case ServerCommand::LIST_CAMERAS:
+          sendResponse(socket, cameraController_.listCameras());
+          break;
+        case ServerCommand::SELECT_CAMERA:
+        {
+          const auto &model = arguments.at(0);
+          const auto &usbPort = arguments.at(1);
+          cameraController_.selectCamera(model.c_str(), usbPort.c_str());
+          sendResponse(socket, success());
+          break;
+        }
+        default:
+          sendResponse(socket, commandNotSupported());
+      }
+    }
+    catch(common::ExceptionData &e)
+    {
+      sendResponse(socket, failure(e));
+    }
+    catch(std::exception &e)
+    {
+      sendResponse(socket, failure(e));
     }
   }
+}
+
+std::vector<std::string> Server::parse(const char *data, const size_t available) const
+{
+  std::vector<std::string> arguments;
+  const std::string input(data, available);
+  boost::split(arguments, input, boost::is_any_of("\t"));
+  return arguments;
+}
+
+std::string Server::success() const
+{
+  constexpr common::ResponseCode code = common::ResponseCode::SUCCESS; 
+  return std::string(reinterpret_cast<const char *>(&code), sizeof(code));
+}
+
+std::string Server::failure(const common::ExceptionData &e) const
+{
+  constexpr common::ResponseCode code = common::ResponseCode::FAILURE; 
+  std::string response(reinterpret_cast<const char *>(&code), sizeof(code));
+  response.append(1, '\t');
+  response.append(std::to_string(e.getErrorNumber()));
+  response.append(1, '\t');
+  response.append(e.getMessage());
+  return response;
+}
+
+std::string Server::failure(const std::exception &e) const
+{
+  constexpr common::ResponseCode code = common::ResponseCode::FAILURE; 
+  std::string response(reinterpret_cast<const char *>(&code), sizeof(code));
+  response.append(1, '\t');
+  response.append(e.what());
+  return response;
 }
 
 void Server::sendResponse(boost::asio::ip::tcp::socket &socket, const std::string &&data)

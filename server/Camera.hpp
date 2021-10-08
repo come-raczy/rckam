@@ -36,18 +36,18 @@ namespace server
 class Camera: boost::noncopyable
 {
 public:
-  Camera(const char *model, const char *port, Gphoto2Context &context);
+  Camera(Gphoto2Context &context, const char *model = nullptr, const char *port = nullptr);
   ~Camera();
   /// capture an image into the given camera file and returtn the size
   unsigned long int capturePreview(CameraFile &cameraFile);
-private:
-  /// the underlying gphoto2 camera
-  ::Camera *camera_;
-  Gphoto2Context *context_;
   /// set the abilities for the specified model
   void setAbilities(const char *model);
   /// set the port info for the specified port
   void setPortInfo(const char *port);
+private:
+  Gphoto2Context *context_;
+  /// the underlying gphoto2 camera
+  ::Camera *camera_;
   /// the underlying gphoto2 camera abilities list
   static CameraAbilitiesList *abilitiesList(Gphoto2Context &context);
   /// get the index of the driver for a given camera model

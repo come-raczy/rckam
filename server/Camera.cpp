@@ -24,9 +24,9 @@ namespace rckam
 namespace server
 {
 
-Camera::Camera(const char *model, const char *port, Gphoto2Context &context)
-: camera_(nullptr)
-, context_(&context)
+Camera::Camera(Gphoto2Context &context, const char *model, const char *port)
+: context_(&context)
+, camera_(nullptr)
 {
   const auto ret1 = gp_camera_new (&camera_);
   if (GP_OK != ret1)
@@ -34,14 +34,24 @@ Camera::Camera(const char *model, const char *port, Gphoto2Context &context)
     auto message = boost::format("ERROR: failed to initialize a camera object: %i") % ret1;
     BOOST_THROW_EXCEPTION(common::Gphoto2Exception(message.str()));
   }
-  setAbilities(model);
-  setPortInfo(port);
+  if (nullptr != model)
+  {
+    setAbilities(model);
+  }
+  if (nullptr != port)
+  {
+    setPortInfo(port);
+  }
 }
 
 Camera::~Camera()
 {
-  gp_camera_exit (camera_, *context_);
-  gp_camera_free (camera_);
+  if (nullptr != camera_)
+  {
+    gp_camera_exit (camera_, *context_);
+    gp_camera_free (camera_);
+    camera_ = nullptr;
+  }
 }
 
 unsigned long int Camera::capturePreview(CameraFile &cameraFile)
@@ -65,6 +75,10 @@ unsigned long int Camera::capturePreview(CameraFile &cameraFile)
 
 void Camera::setAbilities(const char *model)
 {
+  if (nullptr == camera_)
+  {
+    BOOST_THROW_EXCEPTION(common::Gphoto2Exception("ERROR: camera not initialized"));
+  }
   const auto index = driverIndex(model, *context_);
   ::CameraAbilities abilities;
   const auto ret1 = gp_abilities_list_get_abilities (abilitiesList(*context_), index, &abilities);
@@ -143,6 +157,10 @@ GPPortInfoList *Camera::portInfoList()
 
 void Camera::setPortInfo(const char *port)
 {
+  if (nullptr == camera_)
+  {
+    BOOST_THROW_EXCEPTION(common::Gphoto2Exception("ERROR: camera not initialized"));
+  }
   const auto ret1 = gp_port_info_list_lookup_path (portInfoList(), port);
   if (GP_OK > ret1)
   {

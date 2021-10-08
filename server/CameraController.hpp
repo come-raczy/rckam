@@ -22,6 +22,7 @@
 
 #include "Gphoto2Context.hpp"
 #include "Camera.hpp"
+#include "CameraList.hpp"
 #include "DataSocket.hpp"
 //#include "CommunicationSocket.hpp"
 
@@ -37,6 +38,8 @@ public:
   ~CameraController();
   /// list available cameras
   std::string listCameras();
+  /// select the specified camera
+  void selectCamera(const char * const model, const char * const usbPort);
   /// operate the camera
   void run();
   void stopPreview();
@@ -52,8 +55,10 @@ public:
   void stopHdmiCapture();
 private:
   Gphoto2Context *context_;
+  /// last iknown list of cameras
+  CameraList cameraList_;
   /// the underlying gphoto2 camera
-  //Camera camera_;
+  Camera camera_;
   /// the socket to transmit data (image previews)
   //DataSocket dataSocket_;
   // io service for TCP sockets

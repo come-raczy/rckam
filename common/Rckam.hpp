@@ -25,6 +25,7 @@ enum ServerCommand
   ECHO_ONLY = 0, // just checking if server is alive
   GET_SERVER_CONFIG,
   LIST_CAMERAS,
+  SELECT_CAMERA,
   GET_CAMERA_CONFIG,
   GET_CAMERA_SINGLE_CONFIG,
   LIST_CAMERA_CONFIG,
@@ -44,6 +45,8 @@ enum ServerCommand
 enum ResponseCode
 {
   NOT_SUPPORTED = 1,
+  SUCCESS,
+  FAILURE,
   LAST_CODE
 };
 

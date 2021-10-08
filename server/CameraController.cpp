@@ -16,11 +16,11 @@
 
 #include <iostream>
 #include <fstream>
-#include <boost/format.hpp>
 #include <chrono>
 #include <iomanip>
-#include <boost/system/error_code.hpp> // NOTE: boost::asio does not support boost::system::error_code
 #include <cerrno>
+#include <boost/system/error_code.hpp> // NOTE: boost::asio does not support boost::system::error_code
+#include <boost/format.hpp>
 
 #include <sys/mman.h>
 #include <sys/ioctl.h>
@@ -30,7 +30,6 @@
 #include "common/Debug.hpp"
 #include "common/Rckam.hpp"
 #include "common/Exceptions.hpp"
-#include "server/CameraList.hpp"
 
 namespace rckam
 {
@@ -39,7 +38,8 @@ namespace server
 
 CameraController::CameraController(/*const char * const model, const char * const usbPort,*/ const unsigned dataPort,/* const unsigned controlPort,*/ Gphoto2Context &context)
 : context_(&context)
-//, camera_(model, usbPort, context)
+, cameraList_(*context_)
+, camera_(*context_)
 //, dataSocket_()
 //, io_service_()
 //, acceptor_(io_service_, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), dataPort))
@@ -146,16 +146,25 @@ std::string CameraController::listCameras()
 {
   std::string response;
   std::string separator;
-  CameraList cameraList(*context_);
-  for(unsigned i = 0; cameraList.count() > i; ++i)
+  cameraList_ = CameraList(*context_);
+  for(unsigned i = 0; cameraList_.count() > i; ++i)
   {
     response.append(separator);
-    response.append(cameraList.model(i));
+    response.append(std::to_string(i));
     response.append(1, '\t');
-    response.append(cameraList.port(i));
+    response.append(cameraList_.model(i));
+    response.append(1, '\t');
+    response.append(cameraList_.port(i));
     separator = "\n";
   }
   return response;
+}
+
+void CameraController::selectCamera(const char * const model, const char * const usbPort)
+{
+  using common::Gphoto2Exception;
+  camera_.setAbilities(model);
+  camera_.setPortInfo(usbPort);
 }
 
 #if 0

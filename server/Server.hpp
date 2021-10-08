@@ -18,6 +18,7 @@
 #include <string>
 #include <boost/asio/ip/tcp.hpp>
 
+#include "common/Exceptions.hpp"
 #include "Gphoto2Context.hpp"
 #include "CameraController.hpp"
 
@@ -47,6 +48,10 @@ private:
   Gphoto2Context gphoto2Context_;
   CameraController cameraController_;
   std::string commandNotSupported();
+  std::vector<std::string> parse(const char *data, size_t available) const;
+  std::string success() const;
+  std::string failure(const common::ExceptionData &e) const;
+  std::string failure(const std::exception&e) const;
   void sendResponse(boost::asio::ip::tcp::socket &socket, const std::string &&data);
 };
 
