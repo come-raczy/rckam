@@ -126,13 +126,13 @@ std::vector<UserspaceDevice> UserspaceDevice::matchProperty(const Property &prop
   struct udev *udev_ = udev_new();
   if (nullptr == udev_)
   {
-    const auto message = boost::format("ERROR: failed to allocate a new udev context object") % errno % strerror(errno);
+    const auto message = boost::format("ERROR: failed to allocate a new udev context object: %d: %s") % errno % strerror(errno);
     BOOST_THROW_EXCEPTION(RckamException(message.str()));
   }
   struct udev_enumerate* enumerate = udev_enumerate_new(udev_);
   if(nullptr == enumerate)
   {
-    const auto message = boost::format("ERROR: failed to create a udev enumerate object") % errno % strerror(errno);
+    const auto message = boost::format("ERROR: failed to create a udev enumerate object: %d: %s") % errno % strerror(errno);
     BOOST_THROW_EXCEPTION(RckamException(message.str()));
   }
   udev_enumerate_scan_devices(enumerate);

@@ -39,8 +39,8 @@ endif
 ##
 ############################################################
 
-CC=gcc
-CXX=g++
+CC?=gcc
+CXX?=g++
 AR=ar
 
 ############################################################
@@ -135,7 +135,7 @@ CPPFLAGS += -DRCKAM_VERSION="$(RCKAM_VERSION)"
 CPPFLAGS += -DVERSION_STRING="$(VERSION_STRING)"
 CPPFLAGS += -I $(RCKAM_SERVER_DIR)
 CPPFLAGS += -I $(RCKAM_ROOT_DIR)
-CXXFLAGS?=-std=c++17 -pthread
+CXXFLAGS?=-std=c++20 -pthread
 CFLAGS?=-std=c99 
 
 LDFLAGS?=
